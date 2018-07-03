@@ -21,7 +21,6 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   @Output() drawShapesChange = new EventEmitter(); // to map component
 
   private currentApp: Application = null;
-  public isListCollapsed: boolean = null;
   public gotChanges = false;
   private doUpdateResults = true; // bound to checkbox - initial state // TODO: should get from config service
   private doDrawShapes = true; // bound to checkbox - initial state // TODO: should get from config service
@@ -32,8 +31,6 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   public ngOnInit() {
-    this.isListCollapsed = !this.configService.isApplistListVisible;
-
     // prevent underlying map actions for these events
     const element = <HTMLElement>document.getElementById('applist-list');
     L.DomEvent.disableClickPropagation(element); // includes double-click
@@ -73,9 +70,5 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
 
   public matchesVisibleCount(apps: Application[]): number {
     return apps.filter(a => a.isMatches && a.isVisible).length;
-  }
-
-  public onShowHideClick() {
-    this.configService.isApplistListVisible = !this.isListCollapsed;
   }
 }
