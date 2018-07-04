@@ -89,7 +89,6 @@ export class ApiService {
       'name',
       'postID',
       'publishDate',
-      'region',
       'tantalisID'
     ];
     let queryString = 'application?fields=';
@@ -116,7 +115,6 @@ export class ApiService {
       'name',
       'postID',
       'publishDate',
-      'region',
       'tantalisID'
     ];
     let queryString = 'application/' + id + '?fields=';
