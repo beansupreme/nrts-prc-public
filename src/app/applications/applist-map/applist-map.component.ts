@@ -295,9 +295,11 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
             return true; // FUTURE: could use this to make feature invisible (not shown on map)
           }
         });
+        // ref: https://leafletjs.com/reference-1.3.0.html#popup
         const popupOptions = {
           maxWidth: 360, // worst case (Pixel 2)
-          className: '' // FUTURE: for better styling control
+          className: '', // FUTURE: for better styling control
+          autoPanPadding: L.point(40, 40)
         };
         const htmlContent = '<h3>' + featureObj.properties.TENURE_TYPE
           + '<br />'
