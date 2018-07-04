@@ -78,6 +78,10 @@
                 <input type="checkbox" id="updateResultsCheckbox" [(ngModel)]="doUpdateResults" (change)="updateResultsChange.emit(doUpdateResults)" />
                 <label for="updateResultsCheckbox">Update results when map moves</label>
             </div>
+            <div class="w-100">
+                <input type="checkbox" id="drawShapesCheckbox" [(ngModel)]="doDrawShapes" (change)="drawShapesChange.emit(doDrawShapes)" />
+                <label for="drawShapesCheckbox">Draw application shapes</label>
+            </div>
         </div>
     </div>
 

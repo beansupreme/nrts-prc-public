@@ -65,6 +65,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   private isUser = false; // to track map change events
   private gotChanges = false; // to reduce initial map change event handling
   private doUpdateResults: boolean = null;
+  private doDrawShapes: boolean = null;
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
   private defaultBounds = L.latLngBounds([48, -139], [60, -114]); // all of BC
@@ -322,7 +323,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         layer.addTo(appFG);
       });
       self.appsFG.push(appFG); // save to list
-      appFG.addTo(self.map); // add to map
+      if (this.doDrawShapes) { appFG.addTo(self.map); } // add to map
       appFG.addTo(globalFG); // for bounds
       // appFG.on('click', (event) => console.log('app =', app)); // FUTURE: highlight this app in list?
 
@@ -420,5 +421,21 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   public onUpdateResultsChange(doUpdateResults: boolean) {
     this.doUpdateResults = doUpdateResults;
     this.setVisibleDebounced();
+  }
+
+  /**
+   * Event handler called when list component Draw Shapes checkbox has changed.
+   */
+  // FUTURE: move Draw Shapes to common config and register for changes?
+  public onDrawShapesChange(doDrawShapes: boolean) {
+    this.doDrawShapes = doDrawShapes;
+
+    for (const fg of this.appsFG) {
+      if (this.doDrawShapes) {
+        fg.addTo(this.map);
+      } else {
+        fg.removeFrom(this.map);
+      }
+    }
   }
 }

@@ -18,11 +18,13 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   @Output() setCurrentApp = new EventEmitter(); // to map component
   @Output() unsetCurrentApp = new EventEmitter(); // to map component
   @Output() updateResultsChange = new EventEmitter(); // to map component
+  @Output() drawShapesChange = new EventEmitter(); // to map component
 
   private currentApp: Application = null;
   public isListCollapsed: boolean = null;
   public gotChanges = false;
   private doUpdateResults = true; // bound to checkbox - initial state // TODO: should get from config service
+  private doDrawShapes = false; // bound to checkbox - initial state // TODO: should get from config service
 
   constructor(
     private commentPeriodService: CommentPeriodService, // used in template
@@ -44,6 +46,7 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
 
       // sync initial state to map
       this.updateResultsChange.emit(this.doUpdateResults);
+      this.drawShapesChange.emit(this.doDrawShapes);
     }
   }
 
