@@ -54,7 +54,7 @@
                                 :&nbsp;{{item.currentPeriod.endDate | date:'mediumDate'}}
                             </span>
                             <span class="font-weight-normal" *ngIf="commentPeriodService.isOpen(item.currentPeriod)">
-                                :&nbsp;{{item.currentPeriod.startDate | date:'MMM dd'}} - {{item.currentPeriod.endDate | date:'MMM dd'}}
+                                :&nbsp;{{item.currentPeriod.startDate | date:'MMM d'}} - {{item.currentPeriod.endDate | date:'MMM d'}}
                             </span>
                         </div>
                         <a class="app-link" (click)="$event.stopPropagation()" [routerLink]="['/a', item._id]" title="Go to application details">
