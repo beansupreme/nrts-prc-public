@@ -5,8 +5,7 @@
 			<span class="badge">ALPHA</span>
 		</h1>
 		<div class="home-title-container__action-btns">
-          <!-- FOR ALPHA ONLY!!! REMOVE REGIONS FILTER FOR BETA!!! -->
-		  <a class="btn slide-l-btn hero-btn inverted" routerLink="/applications" [queryParams]="{ regions: 'SK' }">
+		  <a class="btn slide-l-btn hero-btn inverted" routerLink="/applications">
 				<i class="material-icons">list</i>
 				<span>View applications in this region</span>
 			</a>
@@ -35,8 +34,7 @@
 						<h3 class="feature-block__header">Find Applications Open for Comment</h3>
 						<p class="feature-block__body">Find relevant application details and provide your comments.</p>
 						<div>
-							<!-- FOR ALPHA ONLY!!! REMOVE REGIONS FILTER FOR BETA!!! -->
-							<a class="btn slide-l-btn hero-btn inverted" routerLink="/applications" [queryParams]="{ regions: 'SK', cpStatus: + 'OP,NS' }">
+							<a class="btn slide-l-btn hero-btn inverted" routerLink="/applications" [queryParams]="{ cpStatus: + 'OP,NS' }">
 								<i class="material-icons">list</i>
 								<span>View filtered list</span>
 							</a>
