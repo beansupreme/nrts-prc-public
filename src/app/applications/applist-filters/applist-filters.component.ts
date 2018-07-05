@@ -228,7 +228,7 @@ export class ApplistFiltersComponent implements OnInit, OnChanges, OnDestroy {
 
         // if no option is selected, match all
         const allRegions = this.regionKeys.every(key => {
-            return (this.regionKeys[key] === false);
+            return (this.regionFilters[key] === false);
         });
 
         // check for matching region
