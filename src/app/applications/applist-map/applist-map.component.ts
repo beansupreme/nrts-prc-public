@@ -63,7 +63,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // paddingBottomRight: [150, 10] // TODO: no longer needed?
   };
   private isUser = false; // to track map change events
-  private gotChanges = false; // to reduce initial map change event handling
+  public gotChanges = false; // to reduce initial map change event handling
   private doUpdateResults: boolean = null;
   private doDrawShapes: boolean = null;
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
@@ -73,7 +73,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private searchService: SearchService,
-    private configService: ConfigService
+    public configService: ConfigService
   ) { }
 
   // for creating custom cluster icon
@@ -462,5 +462,8 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         fg.removeFrom(this.map);
       }
     }
+  }
+  public toggleAppList() {
+    this.configService.isApplistListVisible = !this.configService.isApplistListVisible;
   }
 }
