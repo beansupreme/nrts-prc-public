@@ -24,7 +24,7 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   public isListCollapsed: boolean = null;
   public gotChanges = false;
   private doUpdateResults = true; // bound to checkbox - initial state // TODO: should get from config service
-  private doDrawShapes = false; // bound to checkbox - initial state // TODO: should get from config service
+  private doDrawShapes = true; // bound to checkbox - initial state // TODO: should get from config service
 
   constructor(
     private commentPeriodService: CommentPeriodService, // used in template

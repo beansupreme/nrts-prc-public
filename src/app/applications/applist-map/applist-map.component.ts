@@ -136,6 +136,15 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       noWrap: true
     });
 
+    let tileStart = 0;
+    World_Imagery.on('loading', function () {
+      tileStart = (new Date()).getTime();
+    });
+    World_Imagery.on('load', function () {
+      const delta = (new Date()).getTime() - tileStart;
+      console.log('tile layer loaded in', delta, 'ms');
+    });
+
     this.map = L.map('map', {
       layers: [World_Imagery],
       zoomControl: false
@@ -158,6 +167,12 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         self.isUser = false;
         self.setVisibleDebounced();
       }
+    });
+
+    const mapStart = (new Date()).getTime();
+    this.map.on('load', function () {
+      const delta = (new Date()).getTime() - mapStart;
+      console.log('map loaded in', delta, 'ms');
     });
 
     // add reset view control
@@ -263,6 +278,14 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
    */
   private drawMap() {
     // console.log('drawing map');
+    if (this.gotChanges) {
+      const drawStart = (new Date()).getTime();
+      this.markerClusterGroup.on('layeradd', function () {
+        const delta = (new Date()).getTime() - drawStart;
+        console.log('cluster layer added in', delta, 'ms');
+      });
+    }
+
     const self = this; // for nested functions
     const globalFG = L.featureGroup();
 
