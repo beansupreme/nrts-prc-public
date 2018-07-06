@@ -54,7 +54,7 @@
                                 :&nbsp;{{item.currentPeriod.endDate | date:'mediumDate'}}
                             </span>
                             <span class="font-weight-normal" *ngIf="commentPeriodService.isOpen(item.currentPeriod)">
-                                :&nbsp;{{item.currentPeriod.startDate | date:'MMM dd'}} - {{item.currentPeriod.endDate | date:'MMM dd'}}
+                                :&nbsp;{{item.currentPeriod.startDate | date:'MMM d'}} - {{item.currentPeriod.endDate | date:'MMM d'}}
                             </span>
                         </div>
                         <a class="app-link" (click)="$event.stopPropagation()" [routerLink]="['/a', item._id]" title="Go to application details">
@@ -77,6 +77,10 @@
             <div class="w-100">
                 <input type="checkbox" id="updateResultsCheckbox" [(ngModel)]="doUpdateResults" (change)="updateResultsChange.emit(doUpdateResults)" />
                 <label for="updateResultsCheckbox">Update results when map moves</label>
+            </div>
+            <div class="w-100">
+                <input type="checkbox" id="drawShapesCheckbox" [(ngModel)]="doDrawShapes" (change)="drawShapesChange.emit(doDrawShapes)" />
+                <label for="drawShapesCheckbox">Draw application shapes</label>
             </div>
         </div>
     </div>

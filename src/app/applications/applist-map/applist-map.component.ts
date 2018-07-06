@@ -65,6 +65,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   private isUser = false; // to track map change events
   private gotChanges = false; // to reduce initial map change event handling
   private doUpdateResults: boolean = null;
+  private doDrawShapes: boolean = null;
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
   private defaultBounds = L.latLngBounds([48, -139], [60, -114]); // all of BC
@@ -135,6 +136,15 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       noWrap: true
     });
 
+    let tileStart = 0;
+    World_Imagery.on('loading', function () {
+      tileStart = (new Date()).getTime();
+    });
+    World_Imagery.on('load', function () {
+      const delta = (new Date()).getTime() - tileStart;
+      console.log('tile layer loaded in', delta, 'ms');
+    });
+
     this.map = L.map('map', {
       layers: [World_Imagery],
       zoomControl: false
@@ -157,6 +167,12 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         self.isUser = false;
         self.setVisibleDebounced();
       }
+    });
+
+    const mapStart = (new Date()).getTime();
+    this.map.on('load', function () {
+      const delta = (new Date()).getTime() - mapStart;
+      console.log('map loaded in', delta, 'ms');
     });
 
     // add reset view control
@@ -262,6 +278,14 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
    */
   private drawMap() {
     // console.log('drawing map');
+    if (this.gotChanges) {
+      const drawStart = (new Date()).getTime();
+      this.markerClusterGroup.on('layeradd', function () {
+        const delta = (new Date()).getTime() - drawStart;
+        console.log('cluster layer added in', delta, 'ms');
+      });
+    }
+
     const self = this; // for nested functions
     const globalFG = L.featureGroup();
 
@@ -294,9 +318,11 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
             return true; // FUTURE: could use this to make feature invisible (not shown on map)
           }
         });
+        // ref: https://leafletjs.com/reference-1.3.0.html#popup
         const popupOptions = {
           maxWidth: 360, // worst case (Pixel 2)
-          className: '' // FUTURE: for better styling control
+          className: '', // FUTURE: for better styling control
+          autoPanPadding: L.point(40, 40)
         };
         const htmlContent = '<h3>' + featureObj.properties.TENURE_TYPE
           + '<br />'
@@ -322,7 +348,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         layer.addTo(appFG);
       });
       self.appsFG.push(appFG); // save to list
-      appFG.addTo(self.map); // add to map
+      if (this.doDrawShapes) { appFG.addTo(self.map); } // add to map
       appFG.addTo(globalFG); // for bounds
       // appFG.on('click', (event) => console.log('app =', app)); // FUTURE: highlight this app in list?
 
@@ -420,5 +446,21 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   public onUpdateResultsChange(doUpdateResults: boolean) {
     this.doUpdateResults = doUpdateResults;
     this.setVisibleDebounced();
+  }
+
+  /**
+   * Event handler called when list component Draw Shapes checkbox has changed.
+   */
+  // FUTURE: move Draw Shapes to common config and register for changes?
+  public onDrawShapesChange(doDrawShapes: boolean) {
+    this.doDrawShapes = doDrawShapes;
+
+    for (const fg of this.appsFG) {
+      if (this.doDrawShapes) {
+        fg.addTo(this.map);
+      } else {
+        fg.removeFrom(this.map);
+      }
+    }
   }
 }
