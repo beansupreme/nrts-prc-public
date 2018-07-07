@@ -18,6 +18,7 @@ import { SearchService } from './search.service';
 
 @Injectable()
 export class ApplicationService {
+  //#region Constants
   // statuses / query param options
   readonly ABANDONED = 'AB';
   readonly ACCEPTED = 'AC';
@@ -42,6 +43,7 @@ export class ApplicationService {
   readonly SKEENA = 'SK';
   readonly SOUTHERN_INTERIOR = 'SI';
   readonly VANCOUVER_ISLAND = 'VI';
+  //#endregion
 
   public applicationStatuses: Array<string> = [];
   public regions: Array<string> = [];
