@@ -21,7 +21,7 @@
             <div aria-labelledby="cpStatusFilterButton" (click)="$event.stopPropagation()">
               <div class="form-check" *ngFor="let key of cpStatusKeys">
                 <label class="form-check-label">
-                  <input class="form-check-input" type="checkbox" [(ngModel)]="_cpStatusFilters[key]" name="{{key}}"> 
+                  <input class="gtm-filter-cp-status form-check-input" type="checkbox" [(ngModel)]="_cpStatusFilters[key]" name="{{key}}"> 
                   {{commentPeriodService.commentStatuses[key]}}
                 </label>
               </div>
@@ -51,7 +51,7 @@
             <div aria-labelledby="appStatusFilterButton" (click)="$event.stopPropagation()">
               <div class="form-check" *ngFor="let key of appStatusKeys">
                 <label class="form-check-label">
-                  <input class="form-check-input" type="checkbox" [(ngModel)]="_appStatusFilters[key]" name="{{key}}"> 
+                  <input class="gtm-filter-app-status form-check-input" type="checkbox" [(ngModel)]="_appStatusFilters[key]" name="{{key}}"> 
                   {{applicationService.applicationStatuses[key]}}
                 </label>
               </div>
@@ -72,7 +72,7 @@
 
         <!-- Crown Land File Input -->
         <div class="clf-input filter-control input-group float-left">
-          <input class="form-control" type="number" placeholder="Crown Lands File # (eg: 1234567)" id="clFileInput3" [(ngModel)]="_clFileFilter"
+          <input class="gtm-filter-cl-file form-control" type="number" placeholder="Crown Lands File # (eg: 1234567)" id="clFileInput3" [(ngModel)]="_clFileFilter"
             [ngbTypeahead]="clFileSearch" [focusFirst]="false" (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
             (mousewheel)="$event.preventDefault()" (keyup.enter)="applyClFileFilter()" (focus)="isCpStatusCollapsed=true;isAppStatusCollapsed=true"
             title="Crown Lands File Number">
@@ -125,7 +125,7 @@
       <legend>Comment Period Status</legend>
       <div class="form-check" *ngFor="let key of cpStatusKeys">
         <label class="form-check-label" for="{{key}}">
-          <input class="form-check-input" type="checkbox" name="{{key}}" id="{{key}}" [(ngModel)]="_cpStatusFilters[key]"> 
+          <input class="form-check-input gtm-filter-cp-status" type="checkbox" name="{{key}}" id="{{key}}" [(ngModel)]="_cpStatusFilters[key]"> 
           {{commentPeriodService.commentStatuses[key]}}
         </label>
       </div>
@@ -136,7 +136,7 @@
       <legend>Application Status</legend>
       <div class="form-check" *ngFor="let key of appStatusKeys">
         <label class="form-check-label" for="{{key}}">
-          <input class="form-check-input" type="checkbox" name="{{key}}" id="{{key}}" [(ngModel)]="_appStatusFilters[key]">
+          <input class="form-check-input gtm-filter-app-status" type="checkbox" name="{{key}}" id="{{key}}" [(ngModel)]="_appStatusFilters[key]">
           {{applicationService.applicationStatuses[key]}}
         </label>
       </div>
@@ -146,14 +146,14 @@
     <fieldset class="additional-filters">
         <div class="form-group typeahead-container">
           <label for="applicantInput">Applicant Name</label>
-          <input type="text" class="form-control" placeholder="Applicant Name" id="applicantInput" 
+          <input type="text" class="form-control gtm-filter-applicant " placeholder="Applicant Name" id="applicantInput" 
             [(ngModel)]="_applicantFilter"
             [ngbTypeahead]="applicantSearch" 
             [focusFirst]="false">
         </div>
         <div class="form-group typeahead-container">
           <label for="clFileInput2">Crown Land File #</label>
-          <input type="number" class="form-control" placeholder="Crown Land File #" id="clFileInput2" 
+          <input type="number" class="form-control gtm-filter-cl-file " placeholder="Crown Land File #" id="clFileInput2" 
             [(ngModel)]="_clFileFilter"
             [ngbTypeahead]="clFileSearch" 
             [focusFirst]="false" 
@@ -163,13 +163,13 @@
         </div>
         <div class="form-group typeahead-container">
           <label for="dispIdInput">Disposition Transaction ID</label>
-          <input type="number" class="form-control" placeholder="Disposition Transaction ID" id="dispIdInput" [(ngModel)]="_dispIdFilter"
+          <input type="number" class="form-control gtm-filter-disposition-id" placeholder="Disposition Transaction ID" id="dispIdInput" [(ngModel)]="_dispIdFilter"
             [ngbTypeahead]="dispIdSearch" [focusFirst]="false" (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
             (mousewheel)="$event.preventDefault()">
         </div>
         <div class="form-group typeahead-container">
           <label for="purposeInput">Purpose / Subpurpose</label>
-          <input type="text" class="form-control" placeholder="Purpose / Subpurpose" id="purposeInput" [(ngModel)]="_purposeFilter"
+          <input type="text" class="form-control gtm-filter-purpose" placeholder="Purpose / Subpurpose" id="purposeInput" [(ngModel)]="_purposeFilter"
             [ngbTypeahead]="purposeSearch" 
             [focusFirst]="false">
         </div>
