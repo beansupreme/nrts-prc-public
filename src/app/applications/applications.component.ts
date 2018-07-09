@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil';
-import * as _ from 'lodash';
 
 import { Application } from 'app/models/application';
 import { ApplicationService } from 'app/services/application.service';
@@ -33,7 +32,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
         this.allApps = applications.sort((a: Application, b: Application) => {
           return (a.publishDate < b.publishDate) ? 1 : -1;
         });
-        console.log('getAll() took', (new Date()).getTime() - start, 'ms');
+        // console.log('getAll() took', (new Date()).getTime() - start, 'ms');
       }, error => {
         console.log(error);
         alert('Uh-oh, couldn\'t load applications');
