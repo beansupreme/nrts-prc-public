@@ -1,5 +1,6 @@
 import { Component, OnInit, OnChanges, OnDestroy, Input, SimpleChanges } from '@angular/core';
 import { Application } from 'app/models/application';
+import { ApplicationService } from 'app/services/application.service';
 import { ConfigService } from 'app/services/config.service';
 import { Subject } from 'rxjs/Subject';
 import 'leaflet';
@@ -61,11 +62,12 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
   readonly defaultBounds = L.latLngBounds([48, -139], [60, -114]); // all of BC
-  // for profiling
-  private drawMapStart = 0;
-  private animationStart = 0;
+
+  // private drawMapStart = 0; // for profiling
+  // private animationStart = 0; // for profiling
 
   constructor(
+    public applicationService: ApplicationService,
     public configService: ConfigService
   ) { }
 
@@ -129,14 +131,14 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       noWrap: true
     });
 
-    let tileStart = 0;
-    World_Imagery.on('loading', function () {
-      tileStart = (new Date()).getTime();
-    }, this);
-    World_Imagery.on('load', function () {
-      const delta = (new Date()).getTime() - tileStart;
-      // console.log('tile layer loaded in', delta, 'ms');
-    }, this);
+    // let tileStart = 0;
+    // World_Topo_Map.on('loading', function () {
+    //   tileStart = (new Date()).getTime();
+    // }, this);
+    // World_Topo_Map.on('load', function () {
+    //   const delta = (new Date()).getTime() - tileStart;
+    //   console.log('tile layer loaded in', delta, 'ms');
+    // }, this);
 
     this.map = L.map('map', {
       zoomControl: false,
@@ -163,15 +165,14 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         this.isUser = false;
         this.setVisibleDebounced();
       }
-      // assume animation starts when map changes end
-      this.animationStart = (new Date()).getTime();
+      // this.animationStart = (new Date()).getTime(); // assume animation starts when map changes end
     }, this);
 
-    const mapStart = (new Date()).getTime();
-    this.map.on('load', function () {
-      const delta = (new Date()).getTime() - mapStart;
-      // console.log('map loaded in', delta, 'ms');
-    }, this);
+    // const mapStart = (new Date()).getTime();
+    // this.map.on('load', function () {
+    //   const delta = (new Date()).getTime() - mapStart;
+    //   console.log('map loaded in', delta, 'ms');
+    // }, this);
 
     // add reset view control
     this.map.addControl(new resetViewControl());
@@ -202,24 +203,27 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       this.configService.baseLayerName = e.name;
     }, this);
 
-    // TODO: restore map bounds / center / zoom ?
+    // TODO: restore map bounds or view ?
+    // this.fitGlobalBounds(this.configService.mapBounds);
+    // this.map.setView(this.configService.mapCenter, this.configService.mapZoom);
 
     // add scale control
     L.control.scale({ position: 'bottomright' }).addTo(this.map);
 
-    this.markerClusterGroup.on('animationend', () => {
-      const delta = (new Date()).getTime() - this.animationStart;
-      // console.log('cluster animation took', delta, 'ms');
-    }, this);
+    // this.markerClusterGroup.on('animationend', () => {
+    //   const delta = (new Date()).getTime() - this.animationStart;
+    //   console.log('cluster animation took', delta, 'ms');
+    // }, this);
   }
 
   public ngOnChanges(changes: SimpleChanges) {
-    if (!changes.allApps.firstChange && changes.allApps.currentValue) {
-      // console.log('map: got changed apps from applications');
+    if (changes.allApps) {
+      if (!changes.allApps.firstChange && changes.allApps.currentValue) {
+        this.gotChanges = true;
 
-      this.gotChanges = true;
-
-      // NB: don't need to draw map here -- event handler from filters will do it
+        // (re)draw the matching apps
+        this.drawMap();
+      }
     }
   }
 
@@ -243,10 +247,10 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // console.log('setting visible');
     const bounds = this.map.getBounds();
 
-    // central place to save map bounds / center /zoom
-    this.configService.mapBounds = bounds;
-    this.configService.mapCenter = this.map.getCenter();
-    this.configService.mapZoom = this.map.getZoom();
+    // TODO: central place to save map bounds / view ?
+    // this.configService.mapBounds = bounds;
+    // this.configService.mapCenter = this.map.getCenter();
+    // this.configService.mapZoom = this.map.getZoom();
 
     for (const fg of this.fgList) {
       const fgBounds = fg.getBounds();
@@ -272,8 +276,6 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         if (app) { app.isVisible = false; }
       }
     }
-
-    // NB: change detection will update all components bound to apps list
   }
 
   private fitGlobalBounds(globalBounds: L.LatLngBounds) {
@@ -304,10 +306,10 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     this.fitGlobalBounds(globalFG.getBounds());
   }
 
-  private _onLayerAdd() {
-    const delta = (new Date()).getTime() - this.drawMapStart;
-    // console.log('cluster layer added in', delta, 'ms');
-  }
+  // private _onLayerAdd() {
+  //   const delta = (new Date()).getTime() - this.drawMapStart;
+  //   console.log('cluster layer added in', delta, 'ms');
+  // }
 
   /**
    * Called when list of apps changes.
@@ -315,11 +317,11 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   private drawMap() {
     // console.log('drawing map');
 
-    this.drawMapStart = (new Date()).getTime();
-    if (this.gotChanges) {
-      this.markerClusterGroup.off('layeradd', this._onLayerAdd, this);
-      this.markerClusterGroup.on('layeradd', this._onLayerAdd, this);
-    }
+    // this.drawMapStart = (new Date()).getTime();
+    // if (this.gotChanges) {
+    //   this.markerClusterGroup.off('layeradd', this._onLayerAdd, this);
+    //   this.markerClusterGroup.on('layeradd', this._onLayerAdd, this);
+    // }
 
     const globalFG = L.featureGroup();
 
@@ -341,58 +343,59 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       const appFG = L.featureGroup(); // layers for current app
       appFG.dispositionId = app.tantalisID;
 
-      // draw features for this app
-      app.features.forEach(f => {
-        const feature = JSON.parse(JSON.stringify(f));
-        // needs to be valid GeoJSON
-        delete f.geometry_name;
-        const featureObj: GeoJSON.Feature<any> = feature;
-        const layer = L.geoJSON(featureObj, {
-          filter: function (geoJsonFeature) {
-            return true; // FUTURE: make this feature invisible (not shown on map), if needed
-          }
-        });
-        // ref: https://leafletjs.com/reference-1.3.0.html#popup
-        const popupOptions = {
-          maxWidth: 400, // worst case (Pixel 2)
-          className: 'map-popup-content', // FUTURE: for better styling control, if needed
-          autoPanPadding: L.point(40, 40)
-        };
-        const htmlContent =
-          '<div class="app-detail-title">'
-          + '<span class="client-name__label">Client Name</span>'
-          + '<span class="client-name__value">' + app.client + '</span>'
-          + '</div>'
-          + '<div class="app-details">'
-          + '<div>'
-          //+ '<span class="name">Application Description</span>'
-          + '<span class="value">' + app.description + '</span>'
-          + '</div>'
-          + '<hr class="mt-3 mb-3">'
-          + '<ul class="nv-list">'
-          + '<li><span class="name">Crown Lands File #:</span><span class="value"' + featureObj.properties.CROWN_LANDS_FILE + '</span></li>'
-          + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + featureObj.properties.DISPOSITION_TRANSACTION_SID + '</span></li>'
-          + '<li><span class="name">Location:</span><span class="value">' + app.location + '</span></li>'
-          //+ '<li><span class="name">Shape:</span><span class="value">' + featureObj.properties.INTRID_SID + '</span></li>'
-          //+ '<li><span class="name">Purpose/Subpurpose:</span><span class="value">' + featureObj.properties.TENURE_PURPOSE + '/' + featureObj.properties.TENURE_SUBPURPOSE + '</span></li>'
-          //+ '<li><span class="name">Stage:</span><span class="value">' + featureObj.properties.TENURE_STAGE + '</span></li>'
-          //+ '<li><span class="name">Status:</span><span class="value">' + featureObj.properties.TENURE_STATUS + '</span></li>'
-          //+ '<li><span class="name">Hectares:</span><span class="value">' + featureObj.properties.TENURE_AREA_IN_HECTARES + '</span></li>'
-          + '</ul>'
-          + '</div>'
-        const popup = L.popup(popupOptions).setContent(htmlContent);
-        layer.bindPopup(popup);
-        layer.addTo(appFG);
-      });
-      this.fgList.push(appFG); // save to list
-      if (this.configService.doDrawShapes) { appFG.addTo(this.map); } // add this FG to map
-      appFG.addTo(globalFG); // for bounds
-      // appFG.on('click', L.Util.bind(this._onFeatureGroupClick, this, app)); // FUTURE: for FG action, if needed
+      // // draw features for this app
+      // app.features.forEach(f => {
+      //   const feature = JSON.parse(JSON.stringify(f));
+      //   // needs to be valid GeoJSON
+      //   delete f.geometry_name;
+      //   const featureObj: GeoJSON.Feature<any> = feature;
+      //   const layer = L.geoJSON(featureObj, {
+      //     filter: function (geoJsonFeature) {
+      //       return true; // FUTURE: make this feature invisible (not shown on map), if needed
+      //     }
+      //   });
+      //   // ref: https://leafletjs.com/reference-1.3.0.html#popup
+      //   const popupOptions = {
+      //     maxWidth: 400, // worst case (Pixel 2)
+      //     className: 'map-popup-content', // FUTURE: for better styling control, if needed
+      //     autoPanPadding: L.point(40, 40)
+      //   };
+      //   const htmlContent =
+      //     '<div class="app-detail-title">'
+      //     + '<span class="client-name__label">Client Name</span>'
+      //     + '<span class="client-name__value">' + app.client + '</span>'
+      //     + '</div>'
+      //     + '<div class="app-details">'
+      //     + '<div>'
+      //     //+ '<span class="name">Application Description</span>'
+      //     + '<span class="value">' + app.description + '</span>'
+      //     + '</div>'
+      //     + '<hr class="mt-3 mb-3">'
+      //     + '<ul class="nv-list">'
+      //     + '<li><span class="name">Crown Lands File #:</span><span class="value"' + featureObj.properties.CROWN_LANDS_FILE + '</span></li>'
+      //     + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + featureObj.properties.DISPOSITION_TRANSACTION_SID + '</span></li>'
+      //     + '<li><span class="name">Location:</span><span class="value">' + app.location + '</span></li>'
+      //     //+ '<li><span class="name">Shape:</span><span class="value">' + featureObj.properties.INTRID_SID + '</span></li>'
+      //     //+ '<li><span class="name">Purpose/Subpurpose:</span><span class="value">' + featureObj.properties.TENURE_PURPOSE + '/' + featureObj.properties.TENURE_SUBPURPOSE + '</span></li>'
+      //     //+ '<li><span class="name">Stage:</span><span class="value">' + featureObj.properties.TENURE_STAGE + '</span></li>'
+      //     //+ '<li><span class="name">Status:</span><span class="value">' + featureObj.properties.TENURE_STATUS + '</span></li>'
+      //     //+ '<li><span class="name">Hectares:</span><span class="value">' + featureObj.properties.TENURE_AREA_IN_HECTARES + '</span></li>'
+      //     + '</ul>'
+      //     + '</div>'
+      //   const popup = L.popup(popupOptions).setContent(htmlContent);
+      //   layer.bindPopup(popup);
+      //   layer.addTo(appFG);
+      // });
+      // this.fgList.push(appFG); // save to list
+      // if (this.configService.doDrawShapes) { appFG.addTo(this.map); } // add this FG to map
+      // appFG.addTo(globalFG); // for bounds
+      // // appFG.on('click', L.Util.bind(this._onFeatureGroupClick, this, app)); // FUTURE: for FG action, if needed
 
       // add marker
-      const appBounds = appFG.getBounds();
-      if (appBounds && appBounds.isValid()) {
-        const marker = L.marker(appBounds.getCenter(), { title: app.client })
+      if (app.latitude !== 0 && app.longitude !== 0) {
+        const title = `${app.client}\n${app.purpose} / ${app.subpurpose}\n${this.applicationService.getStatusString(app.status)}\n`
+          + `${this.applicationService.regions[app.region]}`;
+        const marker = L.marker(L.latLng(app.latitude, app.longitude), { title: title })
           .setIcon(markerIconYellow)
           .on('click', L.Util.bind(this._onMarkerClick, this, app));
         marker.dispositionId = app.tantalisID;
@@ -459,23 +462,6 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // if (this.configService.isApplistFiltersVisible) { point = point.subtract([0, (this.appfilters.clientHeight / 2)]); } // FUTURE: offset for filter pane, if needed
 
     this.map.panTo(this.map.layerPointToLatLng(point));
-  }
-
-  /**
-   * Called when filters component updates list of matching apps.
-   */
-  // FUTURE: move Update Matching to common config and register for changes ?
-  public onUpdateMatching(apps: Application[]) {
-    // console.log('map: got changed matching apps from filters');
-
-    // can't update properties in current change detection cycle
-    // so do it in another event
-    setTimeout(() => {
-      // NB: change detection will update all components bound to apps list
-
-      // (re)draw the matching apps
-      this.drawMap();
-    }, 0);
   }
 
   /**
