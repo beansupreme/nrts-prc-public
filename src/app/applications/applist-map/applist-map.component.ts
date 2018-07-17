@@ -354,29 +354,32 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         });
         // ref: https://leafletjs.com/reference-1.3.0.html#popup
         const popupOptions = {
-          maxWidth: 360, // worst case (Pixel 2)
-          className: '', // FUTURE: for better styling control, if needed
+          maxWidth: 400, // worst case (Pixel 2)
+          className: 'map-popup-content', // FUTURE: for better styling control, if needed
           autoPanPadding: L.point(40, 40)
         };
-        const htmlContent = '<h3>' + featureObj.properties.TENURE_TYPE
-          + '<br />'
-          + featureObj.properties.TENURE_SUBTYPE + '</h3>'
-          + '<strong>Shape: </strong>' + featureObj.properties.INTRID_SID
-          + '<br />'
-          + '<strong>Disposition Transaction ID: </strong>' + featureObj.properties.DISPOSITION_TRANSACTION_SID
-          + '<br />'
-          + '<strong>Purpose: </strong>' + featureObj.properties.TENURE_PURPOSE
-          + '<br />'
-          + '<strong>Sub Purpose: </strong>' + featureObj.properties.TENURE_SUBPURPOSE
-          + '<br />'
-          + '<strong>Stage: </strong>' + featureObj.properties.TENURE_STAGE
-          + '<br />'
-          + '<strong>Status: </strong>' + featureObj.properties.TENURE_STATUS
-          + '<br />'
-          + '<strong>Hectares: </strong>' + featureObj.properties.TENURE_AREA_IN_HECTARES
-          + '<br />'
-          + '<br />'
-          + '<strong>Legal Description: </strong>' + featureObj.properties.TENURE_LEGAL_DESCRIPTION;
+        const htmlContent = 
+          '<div class="app-detail-title">'
+          + '<span class="client-name__label">Client Name</span>'
+          + '<span class="client-name__value">' + app.client + '</span>'
+          + '</div>'
+          + '<div class="app-details">'
+          + '<div>'
+          //+ '<span class="name">Application Description</span>'
+          + '<span class="value">' + app.description + '</span>'
+          + '</div>'
+          + '<hr class="mt-3 mb-3">'
+          + '<ul class="nv-list">'
+          + '<li><span class="name">Crown Lands File #:</span><span class="value"' + featureObj.properties.CROWN_LANDS_FILE + '</span></li>'
+          + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + featureObj.properties.DISPOSITION_TRANSACTION_SID + '</span></li>'
+          + '<li><span class="name">Location:</span><span class="value">' + app.location + '</span></li>'
+          //+ '<li><span class="name">Shape:</span><span class="value">' + featureObj.properties.INTRID_SID + '</span></li>'
+          //+ '<li><span class="name">Purpose/Subpurpose:</span><span class="value">' + featureObj.properties.TENURE_PURPOSE + '/' + featureObj.properties.TENURE_SUBPURPOSE + '</span></li>'
+          //+ '<li><span class="name">Stage:</span><span class="value">' + featureObj.properties.TENURE_STAGE + '</span></li>'
+          //+ '<li><span class="name">Status:</span><span class="value">' + featureObj.properties.TENURE_STATUS + '</span></li>'
+          //+ '<li><span class="name">Hectares:</span><span class="value">' + featureObj.properties.TENURE_AREA_IN_HECTARES + '</span></li>'
+          + '</ul>'
+          + '</div>'
         const popup = L.popup(popupOptions).setContent(htmlContent);
         layer.bindPopup(popup);
         layer.addTo(appFG);
