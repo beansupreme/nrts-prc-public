@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, ViewChild, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, SimpleChanges } from '@angular/core';
 import { Application } from 'app/models/application';
 import { ConfigService } from 'app/services/config.service';
 import { Subject } from 'rxjs/Subject';
@@ -44,8 +44,8 @@ const markerIconYellowLg = L.icon({
 export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // NB: this component is bound to the same list of apps as the other components
   @Input() allApps: Array<Application> = []; // from applications component
-  @ViewChild('applist') applist;
-  @ViewChild('appfilters') appfilters;
+  @Input() applist;
+  @Input() appfilters;
 
   private map: L.Map = null;
   private fgList: L.FeatureGroup[] = []; // list of app FGs (each containing feature layers)
@@ -358,7 +358,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
           className: 'map-popup-content', // FUTURE: for better styling control, if needed
           autoPanPadding: L.point(40, 40)
         };
-        const htmlContent = 
+        const htmlContent =
           '<div class="app-detail-title">'
           + '<span class="client-name__label">Client Name</span>'
           + '<span class="client-name__value">' + app.client + '</span>'
@@ -427,7 +427,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Event handler called when list component selects or unselects an app.
+   * Called when list component selects or unselects an app.
    */
   public highlightApplication(app: Application, show: boolean) {
     // reset icon on previous marker, if any
@@ -462,7 +462,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Event handler called when filters component updates list of matching apps.
+   * Called when filters component updates list of matching apps.
    */
   // FUTURE: move Update Matching to common config and register for changes ?
   public onUpdateMatching(apps: Application[]) {
@@ -479,7 +479,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Event handler called when Update Results checkbox has changed.
+   * Called when Update Results checkbox has changed.
    */
   // FUTURE: change doUpdateResults to observable and subscribe to changes ?
   public onUpdateResultsChange() {
@@ -487,7 +487,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Event handler called when Draw Shapes checkbox has changed.
+   * Called when Draw Shapes checkbox has changed.
    */
   // FUTURE: change doDrawShapes to observable and subscribe to changes ?
   public onDrawShapesChange() {
@@ -501,13 +501,16 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Event handler called when Cluster Applications checkbox has changed.
+   * Called when Cluster Applications checkbox has changed.
    */
   // FUTURE: change doClusterApps to observable and subscribe to changes ?
   public onClusterAppsChange() {
     // TODO: implement, if needed
   }
 
+  /**
+   * Called when list component visibility is toggled.
+   */
   public toggleAppList() {
     this.configService.isApplistListVisible = !this.configService.isApplistListVisible;
     const x = this.configService.isApplistListVisible ? -this.applist.clientWidth / 2 : this.applist.clientWidth / 2;
