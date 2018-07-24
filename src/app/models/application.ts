@@ -45,7 +45,6 @@ export class Application {
 
   areaHectares: number; // calculated from all features
 
-  isMatches = true; // whether this application matches current filters
   isVisible = true; // whether this application is visible on map
 
   // associated data

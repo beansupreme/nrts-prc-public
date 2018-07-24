@@ -11,8 +11,7 @@
 
       <ng-template ngFor let-item [ngForOf]="allApps">
         <div class="app-card list-group-item" [class.active]="isCurrentApp(item)"
-          (click)="toggleCurrentApp(item);$event.stopPropagation();"
-          *ngIf="item.isMatches && item.isVisible">
+          (click)="toggleCurrentApp(item);$event.stopPropagation();" *ngIf="item.isVisible">
 
           <!-- Application Details -->
           <ul class="app-card__details">
