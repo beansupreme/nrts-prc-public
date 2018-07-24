@@ -1,4 +1,5 @@
 import { Component, OnInit, OnChanges, OnDestroy, Input, SimpleChanges } from '@angular/core';
+import { MatSnackBarRef, SimpleSnackBar, MatSnackBar } from '@angular/material';
 import { Application } from 'app/models/application';
 import { ApplicationService } from 'app/services/application.service';
 import { ConfigService } from 'app/services/config.service';
@@ -44,10 +45,11 @@ const markerIconYellowLg = L.icon({
 
 export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // NB: this component is bound to the same list of apps as the other components
-  @Input() allApps: Array<Application> = []; // from applications component
+  @Input() applications: Array<Application> = []; // from applications component
   @Input() applist;
   @Input() appfilters;
 
+  private snackBarRef: MatSnackBarRef<SimpleSnackBar> = null;
   private map: L.Map = null;
   private fgList: L.FeatureGroup[] = []; // list of app FGs (each containing feature layers)
   private markerList: L.Marker[] = []; // list of markers
@@ -67,6 +69,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // private animationStart = 0; // for profiling
 
   constructor(
+    public snackBar: MatSnackBar,
     public applicationService: ApplicationService,
     public configService: ConfigService
   ) { }
@@ -216,14 +219,15 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // }, this);
   }
 
+  // called when application list changes
   public ngOnChanges(changes: SimpleChanges) {
-    if (changes.allApps) {
-      if (!changes.allApps.firstChange && changes.allApps.currentValue) {
-        this.gotChanges = true;
+    if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
+      // console.log('applications =', this.applications);
 
-        // (re)draw the matching apps
-        this.drawMap();
-      }
+      this.gotChanges = true;
+
+      // draw the (updated) map
+      this.drawMap();
     }
   }
 
@@ -257,22 +261,22 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
 
       if (!this.configService.doUpdateResults) {
         // show all items even if map moves
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else if (fgBounds && !fgBounds.isValid()) {
         // item without features - make item visible
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else if (fgBounds && fgBounds.isValid() && bounds.intersects(fgBounds)) {
         // bounds intersect - make item visible
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else {
         // invalid bounds, or bounds don't intersect - make item hidden
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = false; }
       }
     }
@@ -312,8 +316,9 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // }
 
   /**
-   * Called when list of apps changes.
+   * Redraws all map layers.
    */
+  // TODO: only draw the new apps
   private drawMap() {
     // console.log('drawing map');
 
@@ -339,7 +344,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     this.fgList.length = 0;
     this.markerList.length = 0;
 
-    this.allApps.filter(a => a.isMatches).forEach(app => {
+    this.applications.forEach(app => {
       const appFG = L.featureGroup(); // layers for current app
       appFG.dispositionId = app.tantalisID;
 
@@ -381,7 +386,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       //     //+ '<li><span class="name">Status:</span><span class="value">' + featureObj.properties.TENURE_STATUS + '</span></li>'
       //     //+ '<li><span class="name">Hectares:</span><span class="value">' + featureObj.properties.TENURE_AREA_IN_HECTARES + '</span></li>'
       //     + '</ul>'
-      //     + '</div>'
+      //     + '</div>';
       //   const popup = L.popup(popupOptions).setContent(htmlContent);
       //   layer.bindPopup(popup);
       //   layer.addTo(appFG);
@@ -389,15 +394,16 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
       // this.fgList.push(appFG); // save to list
       // if (this.configService.doDrawShapes) { appFG.addTo(this.map); } // add this FG to map
       // appFG.addTo(globalFG); // for bounds
-      // // appFG.on('click', L.Util.bind(this._onFeatureGroupClick, this, app)); // FUTURE: for FG action, if needed
 
       // add marker
       if (app.latitude !== 0 && app.longitude !== 0) {
-        const title = `${app.client}\n${app.purpose} / ${app.subpurpose}\n${this.applicationService.getStatusString(app.status)}\n`
-          + `${this.applicationService.regions[app.region]}`;
+        const title = `Applicant: ${app.client}\n`
+          + `Purpose: ${app.purpose} / ${app.subpurpose}\n`
+          + `Status: ${this.applicationService.getStatusString(app.status)}\n`
+          + `Region: ${this.applicationService.regions[app.region]}`;
         const marker = L.marker(L.latLng(app.latitude, app.longitude), { title: title })
           .setIcon(markerIconYellow)
-          .on('click', L.Util.bind(this._onMarkerClick, this, app));
+          .on('click', L.Util.bind(this.onMarkerClick, this, this.applications.indexOf(app)));
         marker.dispositionId = app.tantalisID;
         this.markerList.push(marker); // save to list
         marker.addTo(this.markerClusterGroup);
@@ -406,6 +412,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
 
     // add markers group to map
     this.markerClusterGroup.addTo(this.map);
+    this.markerClusterGroup.addTo(globalFG); // needed because currently we aren't looking at shapes
 
     // fit the global bounds
     this.fitGlobalBounds(globalFG.getBounds());
@@ -417,22 +424,68 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // console.log('# marker layers =', this.markerClusterGroup.getLayers().length);
   }
 
-  private _onFeatureGroupClick(...args: any[]) {
-    // const app = args[0] as Application;
-    // const fg = args[1].target as L.FeatureGroup;
-    // TODO: implement, if needed
+  private onMarkerClick(...args: any[]) {
+    const index = args[0] as number;
+    const marker = args[1].target as L.Marker;
+
+    // this.applist.toggleCurrentApp(this.applications[index]); // FUTURE: update selected item in app list
+
+    // if data is already loaded, show the popup right away
+    // otherwise load the application first
+    if (this.applications[index].isLoaded) {
+      this.showMarkerPopup(marker, this.applications[index]);
+    } else {
+      this.snackBarRef = this.snackBar.open('Loading application ...');
+      this.applicationService.getById(this.applications[index]._id)
+        .takeUntil(this.ngUnsubscribe)
+        .subscribe(
+          application => {
+            this.snackBarRef.dismiss();
+            // update this element in the main list
+            this.applications[index] = application;
+            this.showMarkerPopup(marker, application);
+          },
+          error => {
+            console.log(error);
+            // NB: this snackbar will automatically dismiss the previous snackbar
+            this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
+          });
+    }
   }
 
-  private _onMarkerClick(...args: any[]) {
-    const app = args[0] as Application;
-    // const marker = args[1].target as L.Marker;
-    this.applist.toggleCurrentApp(app); // update selected item in app list
+  private showMarkerPopup(marker: L.Marker, app: Application) {
+    const popupOptions = {
+      maxWidth: 400, // worst case (Pixel 2)
+      className: 'map-popup-content', // FUTURE: for better styling control, if needed
+      autoPanPadding: L.point(40, 40)
+    };
+    const htmlContent =
+      '<div class="app-detail-title">'
+      + '<span class="client-name__label">Client Name</span>'
+      + '<span class="client-name__value">' + (app.client || '-') + '</span>'
+      + '</div>'
+      + '<div class="app-details">'
+      + '<div>'
+      + '<span class="value">' + (app.description || '-') + '</span>'
+      + '</div>'
+      + '<hr class="mt-3 mb-3">'
+      + '<ul class="nv-list">'
+      + '<li><span class="name">Crown Lands File #:</span><span class="value">' + (app.cl_file || '-') + '</span></li>'
+      + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + (app.tantalisID || '-') + '</span></li>'
+      + '<li><span class="name">Location:</span><span class="value">' + (app.location || '-') + '</span></li>'
+      + '</ul>'
+      + '</div>';
+
+    L.popup(popupOptions)
+      .setLatLng(marker.getLatLng())
+      .setContent(htmlContent)
+      .openOn(this.map);
   }
 
   /**
    * Called when list component selects or unselects an app.
    */
-  public highlightApplication(app: Application, show: boolean) {
+  public onHighlightApplication(app: Application, show: boolean) {
     // reset icon on previous marker, if any
     if (this.currentMarker) {
       this.currentMarker.setIcon(markerIconYellow);

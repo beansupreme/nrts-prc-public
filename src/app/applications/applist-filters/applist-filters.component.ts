@@ -33,7 +33,7 @@ export interface FiltersType {
 
 export class ApplistFiltersComponent implements OnInit, OnChanges, OnDestroy {
     // NB: this component is bound to the same list of apps as the other components
-    @Input() allApps: Array<Application> = []; // from applications component
+    @Input() applications: Array<Application> = []; // from applications component
     @Output() updateMatching = new EventEmitter(); // to applications component
 
     public isFiltersCollapsed: boolean;
@@ -144,7 +144,7 @@ export class ApplistFiltersComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     get clientHeight(): number {
-        return this.elementRef.nativeElement.childNodes[0].clientHeight; // div#applist-filters.app-filters__container
+        return this.elementRef.nativeElement.childNodes[0].clientHeight; // div.app-filters__container
     }
 
     public ngOnInit() {
@@ -161,17 +161,17 @@ export class ApplistFiltersComponent implements OnInit, OnChanges, OnDestroy {
             });
     }
 
-    // called when apps list changes
+    // called when application list changes
     public ngOnChanges(changes: SimpleChanges) {
-        if (!changes.allApps.firstChange && changes.allApps.currentValue) {
+        if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
             this.gotChanges = true;
 
             // store keys for faster filter lookahead
             // don't include empty results, then sort results, and then remove duplicates
             // NB: these look only at currently-loaded apps -- not all the possible apps in the system
-            this.applicantKeys = _.sortedUniq(_.compact(this.allApps.map(app => app.client ? app.client.toUpperCase() : null)).sort());
-            this.clFileKeys = _.sortedUniq(_.compact(this.allApps.map(app => app.cl_file)).sort());
-            this.dispIdKeys = _.compact(this.allApps.map(app => app.tantalisID)).sort(); // should already be unique
+            this.applicantKeys = _.sortedUniq(_.compact(this.applications.map(app => app.client ? app.client.toUpperCase() : null)).sort());
+            this.clFileKeys = _.sortedUniq(_.compact(this.applications.map(app => app.cl_file)).sort());
+            this.dispIdKeys = _.compact(this.applications.map(app => app.tantalisID)).sort(); // should already be unique
 
             Object.getOwnPropertyNames(Constants.subpurposes).forEach(purpose => {
                 Constants.subpurposes[purpose].forEach(subpurpose => {
@@ -415,10 +415,6 @@ export class ApplistFiltersComponent implements OnInit, OnChanges, OnDestroy {
             + this.clFileFilterCount()
             + this.dispIdFilterCount()
             + this.purposeFilterCount();
-    }
-
-    public matchesVisibleCount(apps: Application[]): number {
-        return apps.filter(a => a.isMatches && a.isVisible).length;
     }
 
     public cpStatusHasChanges(): boolean {

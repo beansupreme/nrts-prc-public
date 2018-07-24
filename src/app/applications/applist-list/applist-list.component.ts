@@ -13,15 +13,16 @@ import { ConfigService } from 'app/services/config.service';
 
 export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   // NB: this component is bound to the same list of apps as the other components
-  @Input() allApps: Array<Application> = []; // from applications component
+  @Input() applications: Array<Application> = []; // from applications component
   @Output() setCurrentApp = new EventEmitter(); // to applications component
   @Output() unsetCurrentApp = new EventEmitter(); // to applications component
+  @Output() loadMore = new EventEmitter(); // to applications component
+  @Output() listPageSizeChange = new EventEmitter(); // to applications component
   @Output() updateResultsChange = new EventEmitter(); // to applications component
   @Output() drawShapesChange = new EventEmitter(); // to applications component
   @Output() clusterAppsChange = new EventEmitter(); // to applications component
 
   private currentApp: Application = null; // for selecting app in list
-  public gotChanges = false;
 
   constructor(
     private commentPeriodService: CommentPeriodService, // used in template
@@ -30,27 +31,27 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   get clientWidth(): number {
-    return this.elementRef.nativeElement.childNodes[0].clientWidth; // div#applist-list.app-list__container
+    return this.elementRef.nativeElement.childNodes[0].clientWidth; // div.app-list__container
   }
 
   public ngOnInit() { }
 
+  // called when application list changes
   public ngOnChanges(changes: SimpleChanges) {
-    if (changes.allApps && !changes.allApps.firstChange && changes.allApps.currentValue) {
-      this.gotChanges = true;
-    }
+    // if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
+    //   console.log('applications =', this.applications);
+    // }
   }
 
   public ngOnDestroy() { }
 
-  private isCurrentApp(item: Application): boolean {
+  public isCurrentApp(item: Application): boolean {
     return (item === this.currentApp);
   }
 
   public toggleCurrentApp(item: Application) {
-    const index = _.findIndex(this.allApps, { _id: item._id });
+    const index = _.findIndex(this.applications, { _id: item._id });
     if (index >= 0) {
-      // this.allApps.splice(index, 1, item); // NOT NEEDED
       if (!this.isCurrentApp(item)) {
         this.currentApp = item; // set
         this.setCurrentApp.emit(item);
@@ -62,7 +63,7 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  public matchesVisibleCount(apps: Application[]): number {
-    return apps.filter(a => a.isMatches && a.isVisible).length;
+  public loadedApps(): Array<Application> {
+    return this.applications.filter(a => a.isLoaded);
   }
 }

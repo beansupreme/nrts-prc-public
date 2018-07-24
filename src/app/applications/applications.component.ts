@@ -25,12 +25,14 @@ const PAGE_SIZE = 500;
 })
 
 export class ApplicationsComponent implements OnInit, OnDestroy {
+
   @ViewChild('appmap') appmap;
   @ViewChild('applist') applist;
   @ViewChild('appfilters') appfilters;
 
+  public listPageSize = 10;
   private snackBarRef: MatSnackBarRef<SimpleSnackBar> = null;
-  public allApps: Array<Application> = [];
+  public applications: Array<Application> = [];
   private filters: FiltersType = null;
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
@@ -54,15 +56,16 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     // get initial filters
     this.filters = { ...this.appfilters.getFilters() };
 
-    // load initial apps
+    // load initial apps for map
     this.getApps();
   }
 
+  // retrieves all apps (without extended data)
   private getApps() {
-    // do this in another event (so it's not in current change detection cycle)
+    // do this in another event so it's not in current change detection cycle
     setTimeout(() => {
-      this.snackBarRef = this.snackBar.open('Loading applications ...');
-      this.allApps = []; // empty the list
+      this.snackBarRef = this.snackBar.open('Loading map ...');
+      this.applications = []; // empty the list
       this._getPageOfApps(0, PAGE_SIZE);
     }, 0);
   }
@@ -72,13 +75,16 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     this.applicationService.getAll(pageNum, pageSize, this.filters.regionFilters, this.filters.cpStatusFilters, this.filters.appStatusFilters,
       this.filters.applicantFilter, this.filters.clFileFilter, this.filters.dispIdFilter, this.filters.purposeFilter)
       .takeUntil(this.ngUnsubscribe)
-      .subscribe(applications => {
-        this.allApps = _.concat(this.allApps, applications);
-        if (applications.length < PAGE_SIZE) {
-          // this.snackBarRef.dismiss();
-          this.snackBarRef = this.snackBar.open('Loading applications ... Done!', null, { duration: 1000 });
-        } else {
+      .subscribe(apps => {
+        this.applications = _.concat(this.applications, apps);
+        // check if we need to load another page
+        if (apps.length >= PAGE_SIZE) {
           this._getPageOfApps(++pageNum, PAGE_SIZE);
+        } else {
+          // NB: this snackbar will automatically dismiss the previous snackbar
+          this.snackBarRef = this.snackBar.open('Map loaded !', null, { duration: 1000 });
+          // now load initial apps for list
+          this._getPageOfAppsExtended();
         }
       }, error => {
         console.log(error);
@@ -86,6 +92,29 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
         // applications not found --> navigate back to home
         this.router.navigate(['/']);
       });
+  }
+
+  // retrieves (another) 'listPageSize' apps with extended data
+  private _getPageOfAppsExtended() {
+    let n = 0;
+    // TODO: load as batch (instead of individually)
+    for (let i = 0; i < this.applications.length; i++) {
+      if (this.applications[i].isLoaded) { continue; }
+
+      this.applicationService.getById(this.applications[i]._id)
+        .takeUntil(this.ngUnsubscribe)
+        .subscribe(
+          application => {
+            // update this element in the main list
+            this.applications[i] = application;
+          },
+          error => {
+            console.log(error);
+            this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
+          });
+
+      if (++n >= this.configService.listPageSize) { break; }
+    }
   }
 
   ngOnDestroy() {
@@ -104,7 +133,17 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   /**
    * Event handler called when list component selects or unselects an app.
    */
-  public highlightApplication(app: Application, show: boolean) { this.appmap.highlightApplication(app, show); }
+  public onHighlightApplication(app: Application, show: boolean) { this.appmap.onHighlightApplication(app, show); }
+
+  /**
+   * Event handler called when Load More button is clicked.
+   */
+  public onLoadMore() { this._getPageOfAppsExtended(); }
+
+  /**
+   * Event handler called when List Page Size input has changed.
+   */
+  public onListPageSizeChange() { /* nothing for now */ }
 
   /**
    * Event handler called when Update Results checkbox has changed.
@@ -125,4 +164,5 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
    * Called when list component visibility is toggled.
    */
   public toggleAppList() { this.appmap.toggleAppList(); }
+
 }
