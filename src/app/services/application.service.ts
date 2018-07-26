@@ -194,7 +194,10 @@ export class ApplicationService {
           );
         });
 
-        return Promise.all(promises).then(() => { return applications; });
+        return Promise.all(promises).then(() => {
+          applications.forEach(application => { application.isLoaded = true; });
+          return applications;
+        });
       })
       .catch(this.api.handleError);
   }
@@ -202,7 +205,7 @@ export class ApplicationService {
   // get a specific application by its id
   getById(appId: string, forceReload: boolean = false): Observable<Application> {
     if (this.application && this.application._id === appId && !forceReload) {
-      return Observable.of(this.application);
+      return Observable.of(this.application); // return cached app
     }
 
     // first get the application data
@@ -242,7 +245,12 @@ export class ApplicationService {
         // now get the current comment period
         promises.push(this.commentPeriodService.getAllByApplicationId(application._id)
           .toPromise()
-          .then(periods => application.currentPeriod = this.commentPeriodService.getCurrent(periods))
+          .then(periods => {
+            const cp = this.commentPeriodService.getCurrent(periods);
+            application.currentPeriod = cp;
+            // derive comment period status for app list display
+            application['cpStatus'] = this.commentPeriodService.getStatus(cp);
+          })
         );
 
         // now get the decision
@@ -284,7 +292,8 @@ export class ApplicationService {
         );
 
         return Promise.all(promises).then(() => {
-          this.application = application;
+          application.isLoaded = true;
+          this.application = application; //  cache this app
           return this.application;
         });
       })

@@ -46,6 +46,7 @@ export class Application {
   areaHectares: number; // calculated from all features
 
   isVisible = true; // whether this application is visible on map
+  isLoaded = false; // whether all related app data (comment period, shapes, etc) is loaded
 
   // associated data
   documents: Array<Document>;

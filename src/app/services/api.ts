@@ -84,7 +84,7 @@ export class ApiService {
   // Applications
   //
   getApplicationsNoFields() {
-    let queryString = 'application?pageNum=0&pageSize=1000000';
+    const queryString = 'application?pageNum=0&pageSize=1000000';
     return this.get(queryString);
   }
 
