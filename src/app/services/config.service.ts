@@ -12,6 +12,7 @@ export class ConfigService {
   // defaults
   private _isApplistListVisible = false;
   private _isApplistFiltersVisible = false;
+  private _listPageSize = 10;
   private _doUpdateResults = true;
   private _doDrawShapes = false;
   private _doClusterApps = true;
@@ -39,6 +40,9 @@ export class ConfigService {
 
   get isApplistFiltersVisible(): boolean { return this._isApplistFiltersVisible; }
   set isApplistFiltersVisible(val: boolean) { this._isApplistFiltersVisible = val; }
+
+  get listPageSize(): number { return this._listPageSize; }
+  set listPageSize(val: number) { this._listPageSize = val; }
 
   get doUpdateResults(): boolean { return this._doUpdateResults; }
   set doUpdateResults(val: boolean) { this._doUpdateResults = val; }

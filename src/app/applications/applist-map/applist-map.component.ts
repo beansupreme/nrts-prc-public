@@ -45,7 +45,7 @@ const markerIconYellowLg = L.icon({
 
 export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // NB: this component is bound to the same list of apps as the other components
-  @Input() allApps: Array<Application> = []; // from applications component
+  @Input() applications: Array<Application> = []; // from applications component
   @Input() applist;
   @Input() appfilters;
 
@@ -219,12 +219,14 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // }, this);
   }
 
-  // called when apps list changes
+  // called when application list changes
   public ngOnChanges(changes: SimpleChanges) {
-    if (changes.allApps && !changes.allApps.firstChange && changes.allApps.currentValue) {
+    if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
+      // console.log('applications =', this.applications);
+
       this.gotChanges = true;
 
-      // (re)draw the matching apps
+      // draw the (updated) map
       this.drawMap();
     }
   }
@@ -259,22 +261,22 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
 
       if (!this.configService.doUpdateResults) {
         // show all items even if map moves
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else if (fgBounds && !fgBounds.isValid()) {
         // item without features - make item visible
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else if (fgBounds && fgBounds.isValid() && bounds.intersects(fgBounds)) {
         // bounds intersect - make item visible
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else {
         // invalid bounds, or bounds don't intersect - make item hidden
-        const app = _.find(this.allApps, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
         if (app) { app.isVisible = false; }
       }
     }
@@ -314,8 +316,9 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // }
 
   /**
-   * Called when list of apps changes.
+   * Redraws all map layers.
    */
+  // TODO: only draw the new apps
   private drawMap() {
     // console.log('drawing map');
 
@@ -341,7 +344,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     this.fgList.length = 0;
     this.markerList.length = 0;
 
-    this.allApps.forEach(app => {
+    this.applications.forEach(app => {
       const appFG = L.featureGroup(); // layers for current app
       appFG.dispositionId = app.tantalisID;
 
@@ -400,7 +403,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
           + `Region: ${this.applicationService.regions[app.region]}`;
         const marker = L.marker(L.latLng(app.latitude, app.longitude), { title: title })
           .setIcon(markerIconYellow)
-          .on('click', L.Util.bind(this._onMarkerClick, this, app));
+          .on('click', L.Util.bind(this.onMarkerClick, this, this.applications.indexOf(app)));
         marker.dispositionId = app.tantalisID;
         this.markerList.push(marker); // save to list
         marker.addTo(this.markerClusterGroup);
@@ -421,65 +424,68 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // console.log('# marker layers =', this.markerClusterGroup.getLayers().length);
   }
 
-  private _onFeatureGroupClick(...args: any[]) {
-    // const app = args[0] as Application;
-    // const fg = args[1].target as L.FeatureGroup;
-    // TODO: implement, if needed
+  private onMarkerClick(...args: any[]) {
+    const index = args[0] as number;
+    const marker = args[1].target as L.Marker;
+
+    // this.applist.toggleCurrentApp(this.applications[index]); // FUTURE: update selected item in app list
+
+    // if data is already loaded, show the popup right away
+    // otherwise load the application first
+    if (this.applications[index].isLoaded) {
+      this.showMarkerPopup(marker, this.applications[index]);
+    } else {
+      this.snackBarRef = this.snackBar.open('Loading application ...');
+      this.applicationService.getById(this.applications[index]._id)
+        .takeUntil(this.ngUnsubscribe)
+        .subscribe(
+          application => {
+            this.snackBarRef.dismiss();
+            // update this element in the main list
+            this.applications[index] = application;
+            this.showMarkerPopup(marker, application);
+          },
+          error => {
+            console.log(error);
+            // NB: this snackbar will automatically dismiss the previous snackbar
+            this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
+          });
+    }
   }
 
-  private _onMarkerClick(...args: any[]) {
-    const app = args[0] as Application;
-    const marker = args[1].target as L.Marker;
-    // this.applist.toggleCurrentApp(app); // update selected item in app list
-
+  private showMarkerPopup(marker: L.Marker, app: Application) {
     const popupOptions = {
       maxWidth: 400, // worst case (Pixel 2)
       className: 'map-popup-content', // FUTURE: for better styling control, if needed
       autoPanPadding: L.point(40, 40)
     };
+    const htmlContent =
+      '<div class="app-detail-title">'
+      + '<span class="client-name__label">Client Name</span>'
+      + '<span class="client-name__value">' + (app.client || '-') + '</span>'
+      + '</div>'
+      + '<div class="app-details">'
+      + '<div>'
+      + '<span class="value">' + (app.description || '-') + '</span>'
+      + '</div>'
+      + '<hr class="mt-3 mb-3">'
+      + '<ul class="nv-list">'
+      + '<li><span class="name">Crown Lands File #:</span><span class="value">' + (app.cl_file || '-') + '</span></li>'
+      + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + (app.tantalisID || '-') + '</span></li>'
+      + '<li><span class="name">Location:</span><span class="value">' + (app.location || '-') + '</span></li>'
+      + '</ul>'
+      + '</div>';
 
-    // TODO: if we have already loaded the data (ie, for the list) then use that
-
-    // NB: although this currently takes about a second to display, when we use a
-    //     component/template for the popup then the data will "fill in" as we get it
-    this.snackBarRef = this.snackBar.open('Loading application ...');
-    this.applicationService.getById(app._id)
-      .takeUntil(this.ngUnsubscribe)
-      .subscribe(
-        application => {
-          this.snackBarRef.dismiss();
-          const htmlContent =
-            '<div class="app-detail-title">'
-            + '<span class="client-name__label">Client Name</span>'
-            + '<span class="client-name__value">' + (application.client || '-') + '</span>'
-            + '</div>'
-            + '<div class="app-details">'
-            + '<div>'
-            + '<span class="value">' + (application.description || '-') + '</span>'
-            + '</div>'
-            + '<hr class="mt-3 mb-3">'
-            + '<ul class="nv-list">'
-            + '<li><span class="name">Crown Lands File #:</span><span class="value">' + (application.cl_file || '-') + '</span></li>'
-            + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + (application.tantalisID || '-') + '</span></li>'
-            + '<li><span class="name">Location:</span><span class="value">' + (application.location || '-') + '</span></li>'
-            + '</ul>'
-            + '</div>';
-
-          L.popup(popupOptions)
-            .setLatLng(marker.getLatLng())
-            .setContent(htmlContent)
-            .openOn(this.map);
-        },
-        error => {
-          console.log(error);
-          this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
-        });
+    L.popup(popupOptions)
+      .setLatLng(marker.getLatLng())
+      .setContent(htmlContent)
+      .openOn(this.map);
   }
 
   /**
    * Called when list component selects or unselects an app.
    */
-  public highlightApplication(app: Application, show: boolean) {
+  public onHighlightApplication(app: Application, show: boolean) {
     // reset icon on previous marker, if any
     if (this.currentMarker) {
       this.currentMarker.setIcon(markerIconYellow);

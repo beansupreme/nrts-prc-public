@@ -1,15 +1,8 @@
 <div class="app-list__container" id="applist-list" name="List of Crown Land applications, limited by filters and bound by map view">
 
-  <div class="app-list__body" *ngVar="matchesVisibleCount(allApps) as numMatchesVisible">
-    <div class="app-list__list" *ngIf="gotChanges">
-
-      <!--
-      <div class="no-results" *ngIf="numMatchesVisible == 0">
-        No matching applications
-      </div>
-      -->
-
-      <ng-template ngFor let-item [ngForOf]="allApps">
+  <div class="app-list__body">
+    <div class="app-list__list">
+      <ng-template ngFor let-item [ngForOf]="loadedApps()">
         <div class="app-card list-group-item" [class.active]="isCurrentApp(item)"
           (click)="toggleCurrentApp(item);$event.stopPropagation();" *ngIf="item.isVisible">
 
@@ -72,28 +65,36 @@
     </div>
   </div>
 
-  <div class="app-list__options" *ngVar="matchesVisibleCount(allApps) as numMatchesVisible">
-    <div *ngIf="gotChanges">
-      <div class="text-right" [innerHTML]="!numMatchesVisible ? 'No Results' : 'Showing results 1 - ' + numMatchesVisible"></div>
-      <div class="form-check" aria-labelledby="updateResultsCheckbox">
-        <label class="form-check-label" for="updateResultsCheckbox" (click)="$event.stopPropagation()">
-          <input class="form-check-input" type="checkbox" id="updateResultsCheckbox" [(ngModel)]="configService.doUpdateResults" (change)="updateResultsChange.emit()" />
-          Update results when map moves
-        </label>
-      </div>
-      <div class="form-check mb-0" aria-labelledby="drawShapesCheckbox">
-        <label class="form-check-label" for="drawShapesCheckbox" (click)="$event.stopPropagation()">
-          <input class="form-check-input" type="checkbox" id="drawShapesCheckbox" [(ngModel)]="configService.doDrawShapes" (change)="drawShapesChange.emit()" />
-          Draw application shapes
-        </label>
-      </div>
-      <!-- <div class="form-check mb-0" aria-labelledby="clusterAppsCheckbox">
-        <label class="form-check-label" for="clusterAppsCheckbox" (click)="$event.stopPropagation()">
-          <input class="form-check-input" type="checkbox" id="clusterAppsCheckbox" [(ngModel)]="configService.doClusterApps" (change)="clusterAppsChange.emit()" />
-          Cluster applications
-        </label>
-      </div> -->
+  <div class="app-list__options" *ngVar="loadedApps().length as loadedAppsCount">
+    <div class="text-right">{{'Showing ' + loadedAppsCount + ' of ' + applications.length}}</div>
+
+    <button class="float-right" type="button" (click)="loadMore.emit()" [disabled]="loadedAppsCount === applications.length" (click)="$event.stopPropagation()">Load more...</button>
+
+    <div class="" aria-labelledby="listPageSizeInput" (click)="$event.stopPropagation()">
+      <label class="" for="listPageSizeInput">Page size:&nbsp;</label>
+      <input class="h-100 p-0" type="number" id="listPageSizeInput" [(ngModel)]="configService.listPageSize" (change)="listPageSizeChange.emit()" />
     </div>
+
+    <div class="form-check" aria-labelledby="updateResultsCheckbox" (click)="$event.stopPropagation()">
+      <label class="form-check-label" for="updateResultsCheckbox">
+        <input class="form-check-input" type="checkbox" id="updateResultsCheckbox" [(ngModel)]="configService.doUpdateResults" (change)="updateResultsChange.emit()" />
+        Update results when map moves
+      </label>
+    </div>
+
+    <div class="form-check mb-0" aria-labelledby="drawShapesCheckbox" (click)="$event.stopPropagation()">
+      <label class="form-check-label" for="drawShapesCheckbox">
+        <input class="form-check-input" type="checkbox" id="drawShapesCheckbox" [(ngModel)]="configService.doDrawShapes" (change)="drawShapesChange.emit()" />
+        Draw application shapes
+      </label>
+    </div>
+
+    <!-- <div class="form-check mb-0" aria-labelledby="clusterAppsCheckbox" (click)="$event.stopPropagation()">
+      <label class="form-check-label" for="clusterAppsCheckbox">
+        <input class="form-check-input" type="checkbox" id="clusterAppsCheckbox" [(ngModel)]="configService.doClusterApps" (change)="clusterAppsChange.emit()" />
+        Cluster applications
+      </label>
+    </div> -->
   </div>
 
 </div>
