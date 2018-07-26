@@ -1,12 +1,15 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, Input, ApplicationRef, SimpleChanges } from '@angular/core';
 import { MatSnackBarRef, SimpleSnackBar, MatSnackBar } from '@angular/material';
-import { Application } from 'app/models/application';
-import { ApplicationService } from 'app/services/application.service';
-import { ConfigService } from 'app/services/config.service';
 import { Subject } from 'rxjs/Subject';
 import 'leaflet';
 import 'leaflet.markercluster';
 import * as _ from 'lodash';
+
+import { Application } from 'app/models/application';
+import { ApplicationService } from 'app/services/application.service';
+import { ConfigService } from 'app/services/config.service';
+import { CustomCompileService } from 'app/services/customcompile.service';
+import { MarkerPopupComponent } from '../marker-popup/marker-popup.component';
 
 declare module 'leaflet' {
   export interface FeatureGroup<P = any> {
@@ -69,9 +72,11 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   // private animationStart = 0; // for profiling
 
   constructor(
+    private appRef: ApplicationRef,
     public snackBar: MatSnackBar,
     public applicationService: ApplicationService,
-    public configService: ConfigService
+    public configService: ConfigService,
+    public compileService: CustomCompileService
   ) { }
 
   // for creating custom cluster icon
@@ -82,6 +87,8 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
 
   public ngOnInit() {
     const self = this; // for nested functions
+
+    this.compileService.configure(this.appRef); // init
 
     // custom control to reset map view
     const resetViewControl = L.Control.extend({
@@ -455,30 +462,13 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
 
   private showMarkerPopup(marker: L.Marker, app: Application) {
     const popupOptions = {
-      maxWidth: 400, // worst case (Pixel 2)
-      className: 'map-popup-content', // FUTURE: for better styling control, if needed
+      className: 'map-popup-content',
       autoPanPadding: L.point(40, 40)
     };
-    const htmlContent =
-      '<div class="app-detail-title">'
-      + '<span class="client-name__label">Client Name</span>'
-      + '<span class="client-name__value">' + (app.client || '-') + '</span>'
-      + '</div>'
-      + '<div class="app-details">'
-      + '<div>'
-      + '<span class="value">' + (app.description || '-') + '</span>'
-      + '</div>'
-      + '<hr class="mt-3 mb-3">'
-      + '<ul class="nv-list">'
-      + '<li><span class="name">Crown Lands File #:</span><span class="value">' + (app.cl_file || '-') + '</span></li>'
-      + '<li><span class="name">Disposition Transaction ID:</span><span class="value">' + (app.tantalisID || '-') + '</span></li>'
-      + '<li><span class="name">Location:</span><span class="value">' + (app.location || '-') + '</span></li>'
-      + '</ul>'
-      + '</div>';
 
     L.popup(popupOptions)
       .setLatLng(marker.getLatLng())
-      .setContent(htmlContent)
+      .setContent(this.compileService.compile(MarkerPopupComponent, (f) => { f.instance.app = app; }))
       .openOn(this.map);
   }
 

@@ -29,11 +29,11 @@ import { ApiService } from 'app/services/api';
 import { ApplicationService } from 'app/services/application.service';
 import { CommentService } from 'app/services/comment.service';
 import { CommentPeriodService } from 'app/services/commentperiod.service';
+import { ConfigService } from 'app/services/config.service';
 import { DecisionService } from 'app/services/decision.service';
 import { DocumentService } from 'app/services/document.service';
 import { OrganizationService } from 'app/services/organization.service';
 import { SearchService } from 'app/services/search.service';
-import { ConfigService } from 'app/services/config.service';
 
 @NgModule({
   imports: [
@@ -65,11 +65,11 @@ import { ConfigService } from 'app/services/config.service';
     ApplicationService,
     CommentService,
     CommentPeriodService,
+    ConfigService,
     DecisionService,
     DocumentService,
     OrganizationService,
-    SearchService,
-    ConfigService
+    SearchService
   ],
   bootstrap: [
     AppComponent
