@@ -8,11 +8,15 @@ import { RouterModule } from '@angular/router';
 // modules
 import { SharedModule } from 'app/shared.module';
 
+// services
+import { CustomCompileService } from 'app/services/customcompile.service';
+
 // components
 import { ApplicationsComponent } from './applications.component';
 import { ApplistListComponent } from './applist-list/applist-list.component';
 import { ApplistMapComponent } from './applist-map/applist-map.component';
 import { ApplistFiltersComponent } from './applist-filters/applist-filters.component';
+import { MarkerPopupComponent } from './marker-popup/marker-popup.component';
 
 @NgModule({
   imports: [
@@ -27,10 +31,14 @@ import { ApplistFiltersComponent } from './applist-filters/applist-filters.compo
     ApplicationsComponent,
     ApplistListComponent,
     ApplistMapComponent,
-    ApplistFiltersComponent
+    ApplistFiltersComponent,
+    MarkerPopupComponent
   ],
-  exports: [
-    // ApplicationsComponent // DON'T NEED TO EXPORT?
+  providers: [
+    CustomCompileService,
+  ],
+  entryComponents: [
+    MarkerPopupComponent
   ]
 })
 

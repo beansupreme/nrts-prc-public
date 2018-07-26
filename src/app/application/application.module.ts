@@ -37,9 +37,6 @@ import { FileUploadComponent } from './add-comment/file-upload/file-upload.compo
     AddCommentComponent,
     FileUploadComponent
   ],
-  exports: [
-    // ApplicationComponent // DON'T NEED TO EXPORT?
-  ],
   entryComponents: [
     ViewCommentComponent,
     AddCommentComponent
