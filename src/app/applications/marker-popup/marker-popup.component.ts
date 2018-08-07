@@ -8,7 +8,5 @@ import { Application } from 'app/models/application';
 })
 
 export class MarkerPopupComponent {
-
   public app: Application = null;
-
 }
