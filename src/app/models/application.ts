@@ -54,6 +54,10 @@ export class Application {
   decision: Decision;
   features: Array<Feature>;
 
+  // computued fields
+  appStatus: string;
+  cpStatus: string;
+
   constructor(obj?: any) {
     this._id                     = obj && obj._id                     || null;
 
