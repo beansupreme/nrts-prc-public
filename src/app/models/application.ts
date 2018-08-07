@@ -47,16 +47,14 @@ export class Application {
 
   isVisible = true; // whether this application is visible on map
   isLoaded = false; // whether all related app data (comment period, shapes, etc) is loaded
+  appStatus: string = null; // derived application status for app list display
+  cpStatus: string = null; // derived comment period status for app list display
 
   // associated data
   documents: Array<Document>;
   currentPeriod: CommentPeriod;
   decision: Decision;
   features: Array<Feature>;
-
-  // computued fields
-  appStatus: string;
-  cpStatus: string;
 
   constructor(obj?: any) {
     this._id                     = obj && obj._id                     || null;

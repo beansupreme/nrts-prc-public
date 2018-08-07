@@ -154,7 +154,7 @@ export class ApplicationService {
               const cp = this.commentPeriodService.getCurrent(periods);
               applications[i].currentPeriod = cp;
               // derive comment period status for app list display
-              applications[i]['cpStatus'] = this.commentPeriodService.getStatus(cp);
+              applications[i].cpStatus = this.commentPeriodService.getStatus(cp);
             })
           );
         });
@@ -189,7 +189,7 @@ export class ApplicationService {
               }
 
               // derive application status for app list display
-              application['appStatus'] = this.getStatusString(application.status);
+              application.appStatus = this.getStatusString(application.status);
             })
           );
         });
@@ -249,7 +249,7 @@ export class ApplicationService {
             const cp = this.commentPeriodService.getCurrent(periods);
             application.currentPeriod = cp;
             // derive comment period status for app list display
-            application['cpStatus'] = this.commentPeriodService.getStatus(cp);
+            application.cpStatus = this.commentPeriodService.getStatus(cp);
           })
         );
 
@@ -287,7 +287,7 @@ export class ApplicationService {
               application.region = this.getRegionCode(application.businessUnit);
             }
             // derive application status for app list display
-            application['appStatus'] = this.getStatusString(application.status);
+            application.appStatus = this.getStatusString(application.status);
           })
         );
 
