@@ -2,11 +2,44 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 50px;
-    height: 50px;
-    margin-top: calc(-#{$spinner-width} / 1.5);
-    margin-left: calc(-#{$spinner-width} / 2);
-    background-image: url("~assets/images/spinner.png")
+    width: $spinner-lg;
+    height: $spinner-lg;
+    margin-top: calc(-#{$spinner-lg} / 1.5);
+    margin-left: calc(-#{$spinner-lg} / 2);
+    background-image: url("~assets/images/spinner.png");
+}
+
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-image: url("~assets/images/spinner.png");
+    background-size: 100%;
+
+    &.spinner-sm {
+        width: $spinner-sm;
+        height: $spinner-sm;
+        margin-top: calc(-#{$spinner-sm} / 1.5);
+        margin-left: calc(-#{$spinner-sm} / 2);
+    }
+
+    &.spinner-lg {
+        width: $spinner-lg;
+        height: $spinner-lg;
+        margin-top: calc(-#{$spinner-lg} / 1.5);
+        margin-left: calc(-#{$spinner-lg} / 2);
+    }
+}
+
+.spinner__msg {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: 1rem;
+    width: 100%;
+    color: #5091cd;
+    text-align: center;
+    font-size: 0.875rem;
 }
 
 .spinner-container {
@@ -83,4 +116,20 @@
     -ms-animation: rotating 0.75s linear infinite;
     -o-animation: rotating 0.75s linear infinite;
     animation: rotating 0.75s linear infinite;
+}
+
+
+// Button Variant
+.btn {
+    .spinner {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-top: -0.1rem;
+        margin-right: 0.5rem;
+        display: inline-block;
+        background-image: url("~assets/images/spinner-inverted.png");
+        width: 1rem;
+        height: 1rem;
+    }
 }

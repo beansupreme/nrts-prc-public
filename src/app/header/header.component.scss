@@ -204,11 +204,12 @@ header {
   background-size: auto;
 
   .badge {
+    position: relative;
     color: $gold;
     padding: 0;
     top: 12px;
     left: 233px + 2px;
-    font-size: x-small;
+    font-size: 0.7rem;
   }
 }
 
@@ -224,9 +225,5 @@ header {
       left: 339px + 2px;
       font-size: 0.875rem;
     }
-  }
-  .badge {
-    top: 1.5rem;
-    font-size: 0.875rem;
   }
 }
