@@ -256,34 +256,29 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
    */
   private setVisible() {
     // console.log('setting visible');
-    const bounds = this.map.getBounds();
+    const mapBounds = this.map.getBounds();
 
     // TODO: central place to save map bounds / view ?
     // this.configService.mapBounds = bounds;
     // this.configService.mapCenter = this.map.getCenter();
     // this.configService.mapZoom = this.map.getZoom();
 
-    for (const fg of this.fgList) {
-      const fgBounds = fg.getBounds();
+    for (const marker of this.markerList) {
+      const markerLatLng = marker.getLatLng();
 
       if (!this.configService.doUpdateResults) {
         // show all items even if map moves
-        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
+        const app = _.find(this.applications, { tantalisID: marker.dispositionId });
         if (app) { app.isVisible = true; }
 
-      } else if (fgBounds && !fgBounds.isValid()) {
-        // item without features - make item visible
-        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
-        if (app) { app.isVisible = true; }
-
-      } else if (fgBounds && fgBounds.isValid() && bounds.intersects(fgBounds)) {
-        // bounds intersect - make item visible
-        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
+      } else if (mapBounds.contains(markerLatLng)) {
+        // map contains marker - make item visible
+        const app = _.find(this.applications, { tantalisID: marker.dispositionId });
         if (app) { app.isVisible = true; }
 
       } else {
-        // invalid bounds, or bounds don't intersect - make item hidden
-        const app = _.find(this.applications, { tantalisID: fg.dispositionId });
+        // map doesn't contains marker - make item hidden
+        const app = _.find(this.applications, { tantalisID: marker.dispositionId });
         if (app) { app.isVisible = false; }
       }
     }
@@ -293,7 +288,12 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // use padding to adjust for list and/or filters
     const x = this.configService.isApplistListVisible ? this.applist.clientWidth : 0;
     const y = 0; // this.appfilters.clientHeight; // FUTURE: offset for filter pane, if needed
-    const fitBoundsOptions: L.FitBoundsOptions = { paddingTopLeft: L.point(x, y) };
+    const fitBoundsOptions: L.FitBoundsOptions = {
+      paddingTopLeft: L.point(x, y),
+      // disable animation to prevent known bug where zoom is sometimes incorrect
+      // ref: https://github.com/Leaflet/Leaflet/issues/3249
+      animate: false
+    };
 
     if (globalBounds && globalBounds.isValid()) {
       this.map.fitBounds(globalBounds, fitBoundsOptions);
@@ -309,8 +309,8 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // console.log('resetting view');
     const globalFG = L.featureGroup();
 
-    for (const fg of this.fgList) {
-      fg.addTo(globalFG);
+    for (const marker of this.markerList) {
+      marker.addTo(globalFG);
     }
 
     // fit the global bounds
@@ -414,12 +414,12 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
         marker.dispositionId = app.tantalisID;
         this.markerList.push(marker); // save to list
         marker.addTo(this.markerClusterGroup);
+        marker.addTo(globalFG); // for bounds
       }
     });
 
     // add markers group to map
     this.markerClusterGroup.addTo(this.map);
-    this.markerClusterGroup.addTo(globalFG); // needed because currently we aren't looking at shapes
 
     // fit the global bounds
     this.fitGlobalBounds(globalFG.getBounds());
@@ -475,6 +475,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Called when list component selects or unselects an app.
    */
+  // TODO: if app is in a cluster, highlight the cluster (PRC-562)
   public onHighlightApplication(app: Application, show: boolean) {
     // reset icon on previous marker, if any
     if (this.currentMarker) {
@@ -505,14 +506,6 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // if (this.configService.isApplistFiltersVisible) { point = point.subtract([0, (this.appfilters.clientHeight / 2)]); } // FUTURE: offset for filter pane, if needed
 
     this.map.panTo(this.map.layerPointToLatLng(point));
-  }
-
-  /**
-   * Called when Update Results checkbox has changed.
-   */
-  // FUTURE: change doUpdateResults to observable and subscribe to changes ?
-  public onUpdateResultsChange() {
-    this.setVisibleDebounced();
   }
 
   /**
