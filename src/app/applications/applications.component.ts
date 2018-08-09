@@ -96,24 +96,35 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
 
   // retrieves (another) 'listPageSize' apps with extended data
   private _getPageOfAppsExtended() {
-    let n = 0;
+    let isStarted = false;
+    let numToLoad = 0;
+    let numRemaining = 0;
+
     // TODO: load as batch (instead of individually)
     for (let i = 0; i < this.applications.length; i++) {
       if (this.applications[i].isLoaded) { continue; }
+      if (numToLoad++ >= this.configService.listPageSize) { break; }
 
+      if (!isStarted) {
+        this.applist.onLoadMoreStart();
+        isStarted = true;
+      }
+
+      numRemaining++;
       this.applicationService.getById(this.applications[i]._id)
         .takeUntil(this.ngUnsubscribe)
         .subscribe(
           application => {
             // update this element in the main list
             this.applications[i] = application;
+            if (--numRemaining <= 0) {
+              this.applist.onLoadMoreEnd();
+            }
           },
           error => {
             console.log(error);
             this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
           });
-
-      if (++n >= this.configService.listPageSize) { break; }
     }
   }
 

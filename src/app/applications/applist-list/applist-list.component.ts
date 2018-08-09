@@ -23,10 +23,11 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   @Output() clusterAppsChange = new EventEmitter(); // to applications component
 
   private currentApp: Application = null; // for selecting app in list
+  public loading = true;
 
   constructor(
+    public configService: ConfigService, // used in template
     private commentPeriodService: CommentPeriodService, // used in template
-    private configService: ConfigService, // used in template
     private elementRef: ElementRef
   ) { }
 
@@ -66,4 +67,7 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   public loadedApps(): Array<Application> {
     return this.applications.filter(a => a.isLoaded);
   }
+
+  public onLoadMoreStart() { this.loading = true; }
+  public onLoadMoreEnd() { this.loading = false; }
 }
