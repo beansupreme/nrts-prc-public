@@ -62,7 +62,7 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     maxClusterRadius: 40, // NB: change to 0 to disable clustering
     // iconCreateFunction: this.clusterCreate // FUTURE: for custom markers, if needed
   });
-  private origDistance: number = null; // for map resizing
+  private oldSize: L.Point = null; // for map resizing
   public gotChanges = false; // to reduce initial map change event handling
   private ngUnsubscribe: Subject<boolean> = new Subject<boolean>();
 
@@ -153,23 +153,21 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     //   console.log('movestart');
     // }, this);
 
-    this.map.on('resize', function () {
-      // console.log('resize');
-      if (this.origDistance === null) {
-        const oldBounds = this.map.getBounds();
-        this.origDistance = this.map.distance(oldBounds.getSouthWest(), oldBounds.getNorthEast());
+    this.map.on('resize', function (e: L.ResizeEvent) {
+      // console.log('resize, e =', e);
+      if (this.oldSize === null) {
+        this.oldSize = e.oldSize;
       }
     }, this);
 
     // NB: moveend is called after zoom, move and resize
     this.map.on('moveend', function () {
-      // console.log('moveend');
-      if (this.origDistance !== null) {
+      console.log('moveend');
+      if (this.oldSize !== null) {
         // zoom to approximately the same scale as before resize
-        const newBounds = this.map.getBounds();
-        const newDistance = this.map.distance(newBounds.getSouthWest(), newBounds.getNorthEast());
-        const zoom = this.map.getScaleZoom(newDistance / this.origDistance, this.map.getZoom());
-        this.origDistance = null; // must clear this before calling setZoom()
+        const scale = this.distance(this.map.getSize()) / this.distance(this.oldSize);
+        const zoom = this.map.getScaleZoom(scale, this.map.getZoom());
+        this.oldSize = null; // must clear this before calling setZoom()
         this.map.setZoom(zoom);
       } else {
         // update list of visible apps
@@ -212,6 +210,10 @@ export class ApplistMapComponent implements OnInit, OnChanges, OnDestroy {
     // FUTURE: restore map bounds or view ?
     // this.fitGlobalBounds(this.configService.mapBounds);
     // this.map.setView(this.configService.mapCenter, this.configService.mapZoom);
+  }
+
+  private distance(size: L.Point): number {
+    return Math.sqrt(size.x * size.x + size.y * size.y);
   }
 
   // called when application list changes
