@@ -27,13 +27,13 @@
               </div>
             </div>
             <div class="dropdown-button-bar" *ngVar="cpStatusHasChanges() as hasChanges">
-              <a class="btn btn-link" role="button" (click)="clearCpStatusFilters()" *ngIf="!hasChanges && numCpStatus > 0">
+              <a class="btn btn-link" role="button" (click)="!loading && clearCpStatusFilters()" *ngIf="!hasChanges && numCpStatus > 0" [class.disabled]="loading">
                 Clear
               </a>
               <a class="btn btn-link" role="button" (click)="cancelCpStatusFilters();isCpStatusCollapsed=true" *ngIf="hasChanges || numCpStatus == 0">
                 Cancel
               </a>
-              <button class="btn btn-primary" type="button" (click)="applyCpStatusFilters();isCpStatusCollapsed=true">
+              <button class="btn btn-primary" type="button" (click)="applyCpStatusFilters();isCpStatusCollapsed=true" [disabled]="loading">
                 Apply
               </button>
             </div>
@@ -56,13 +56,13 @@
                 </label>
               </div>
               <div class="dropdown-button-bar" *ngVar="appStatusHasChanges() as hasChanges">
-                <a class="btn btn-link" role="button" (click)="clearAppStatusFilters()" *ngIf="!hasChanges && numAppStatus > 0">
+                <a class="btn btn-link" role="button" (click)="!loading && clearAppStatusFilters()" *ngIf="!hasChanges && numAppStatus > 0" [class.disabled]="loading">
                   Clear
                 </a>
                 <a class="btn btn-link" role="button" (click)="cancelAppStatusFilters();isAppStatusCollapsed=true" *ngIf="hasChanges || numAppStatus == 0">
                   Cancel
                 </a>
-                <button class="btn btn-primary" type="button" (click)="applyAppStatusFilters();isAppStatusCollapsed=true">
+                <button class="btn btn-primary" type="button" (click)="applyAppStatusFilters();isAppStatusCollapsed=true" [disabled]="loading">
                   Apply
                 </button>
               </div>
@@ -73,12 +73,12 @@
         <!-- Crown Land File Input -->
         <div class="clf-input filter-control input-group float-left">
           <input class="gtm-filter-cl-file form-control" type="number" placeholder="Crown Lands File # (eg: 1234567)" id="clFileInput3" [(ngModel)]="_clFileFilter"
-            [ngbTypeahead]="clFileSearch" [focusFirst]="false" (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
+            (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
             (mousewheel)="$event.preventDefault()" (keyup.enter)="applyClFileFilter()" (focus)="isCpStatusCollapsed=true;isAppStatusCollapsed=true"
-            title="Crown Lands File Number">
+            title="Crown Lands File Number" [disabled]="loading">
           <div class="input-group-btn">
             <!-- *ngIf="clFileFilterCount() > 0" -->
-            <button type="button" class="btn btn-primary gtm-apply-filters" (click)="applyClFileFilter()">Apply</button>
+            <button type="button" class="btn btn-primary gtm-apply-filters" (click)="applyClFileFilter()" [disabled]="loading">Apply</button>
           </div>
         </div>
       </div>
@@ -87,11 +87,13 @@
 
     <!-- ACTIONS -->
     <div class="filter-actions d-flex align-items-center">
-      <a class="btn btn-link" role="button" title="Clear filters" (click)="clearAllFilters(isFiltersCollapsed)" *ngVar="filterCount() as filtCnt">
+      <a class="btn btn-link" role="button" title="Clear filters" (click)="!loading && clearAllFilters();isFiltersCollapsed=true" *ngVar="filterCount() as filtCnt"
+        [class.disabled]="loading">
         Clear {{filtCnt > 0 ? '(' + filtCnt + ')' : ''}}
       </a>
       <!-- Remove Inline Block Spacing -->
-      <a class="toggle-filter-btn btn btn-light" role="button" title="Show all filters" *ngIf="isFiltersCollapsed" (click)="isCpStatusCollapsed=true;isAppStatusCollapsed=true;isFiltersCollapsed=false;onShowHideClick()"
+      <a class="toggle-filter-btn btn btn-light" role="button" title="Show all filters" *ngIf="isFiltersCollapsed"
+        (click)="isCpStatusCollapsed=true;isAppStatusCollapsed=true;isFiltersCollapsed=false;onShowHideClick()"
         [attr.aria-expanded]="!isFiltersCollapsed" aria-controls="applist-filters">Show all filters
       </a>
 
@@ -100,7 +102,8 @@
         <a class="btn btn-link" role="button" title="Cancel" id="cancelButton" (click)="cancelAllFilters();isFiltersCollapsed=true;onShowHideClick()">
           Cancel
         </a>
-        <button type="button" class="btn btn-primary" title="Apply Filters" id="applyButton" (click)="applyAllFilters();isFiltersCollapsed=true;onShowHideClick()">
+        <button type="button" class="btn btn-primary" title="Apply Filters" id="applyButton" (click)="applyAllFilters();isFiltersCollapsed=true;onShowHideClick()"
+          [disabled]="loading">
           Apply
         </button>
       </span>
@@ -138,32 +141,24 @@
     <fieldset class="additional-filters">
         <div class="form-group typeahead-container">
           <label for="applicantInput">Applicant Name</label>
-          <input type="text" class="form-control gtm-filter-applicant " placeholder="Applicant Name" id="applicantInput" 
-            [(ngModel)]="_applicantFilter"
-            [ngbTypeahead]="applicantSearch" 
-            [focusFirst]="false">
+          <input type="text" class="form-control gtm-filter-applicant " placeholder="Applicant Name" id="applicantInput" [(ngModel)]="_applicantFilter"
+          [ngbTypeahead]="applicantSearch" [focusFirst]="false">
         </div>
         <div class="form-group typeahead-container">
           <label for="clFileInput2">Crown Land File #</label>
-          <input type="number" class="form-control gtm-filter-cl-file " placeholder="Crown Land File #" id="clFileInput2" 
-            [(ngModel)]="_clFileFilter"
-            [ngbTypeahead]="clFileSearch" 
-            [focusFirst]="false" 
-            (keydown.arrowup)="$event.preventDefault()" 
-            (keydown.arrowdown)="$event.preventDefault()"
+          <input type="number" class="form-control gtm-filter-cl-file " placeholder="Crown Land File #" id="clFileInput2" [(ngModel)]="_clFileFilter"
+            (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
             (mousewheel)="$event.preventDefault()">
         </div>
         <div class="form-group typeahead-container">
           <label for="dispIdInput">Disposition Transaction ID</label>
           <input type="number" class="form-control gtm-filter-disposition-id" placeholder="Disposition Transaction ID" id="dispIdInput" [(ngModel)]="_dispIdFilter"
-            [ngbTypeahead]="dispIdSearch" [focusFirst]="false" (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()"
-            (mousewheel)="$event.preventDefault()">
+            (keydown.arrowup)="$event.preventDefault()" (keydown.arrowdown)="$event.preventDefault()" (mousewheel)="$event.preventDefault()">
         </div>
         <div class="form-group typeahead-container">
           <label for="purposeInput">Purpose / Subpurpose</label>
           <input type="text" class="form-control gtm-filter-purpose" placeholder="Purpose / Subpurpose" id="purposeInput" [(ngModel)]="_purposeFilter"
-            [ngbTypeahead]="purposeSearch" 
-            [focusFirst]="false">
+            [ngbTypeahead]="purposeSearch" [focusFirst]="false">
         </div>
     </fieldset>
 

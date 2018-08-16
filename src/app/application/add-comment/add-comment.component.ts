@@ -62,7 +62,7 @@ export class AddCommentComponent implements OnInit {
     // approximate size of everything for progress reporting
     const commentSize = this.sizeof(this.comment);
     this.totalSize = commentSize;
-    this.files.forEach(file => this.totalSize += file.size);
+    for (const file of this.files) { this.totalSize += file.size; }
 
     // first add new comment
     this.progressBufferValue += 100 * commentSize / this.totalSize;
@@ -117,7 +117,7 @@ export class AddCommentComponent implements OnInit {
   private sizeof(o: object) {
     let bytes = 0;
 
-    Object.keys(o).forEach(key => {
+    for (const key of Object.keys(o)) {
       bytes += key.length;
       const obj = o[key];
       switch (typeof obj) {
@@ -126,7 +126,7 @@ export class AddCommentComponent implements OnInit {
         case 'string': bytes += 2 * obj.length; break;
         case 'object': if (obj) { bytes += this.sizeof(obj); } break;
       }
-    });
+    }
     return bytes;
   }
 }

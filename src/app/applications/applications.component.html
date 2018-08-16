@@ -29,7 +29,8 @@
     <app-applist-map class="app-map" #appmap
       [applications]="applications"
       [applist]="applist"
-      [appfilters]="appfilters">
+      [appfilters]="appfilters"
+      (reloadList)="onReloadList()">
     </app-applist-map>
   </div>
 

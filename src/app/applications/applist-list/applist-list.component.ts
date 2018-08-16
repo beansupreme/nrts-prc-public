@@ -32,14 +32,14 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   get clientWidth(): number {
-    return this.elementRef.nativeElement.childNodes[0].clientWidth; // div.app-list__container
+    return this.elementRef.nativeElement.firstElementChild.clientWidth; // div.app-list__container
   }
 
   public ngOnInit() { }
 
   // called when application list changes
   public ngOnChanges(changes: SimpleChanges) {
-    // if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
+    // if (changes.applications && !changes.applications.firstChange) {
     //   console.log('applications =', this.applications);
     // }
   }
@@ -65,9 +65,14 @@ export class ApplistListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public loadedApps(): Array<Application> {
-    return this.applications.filter(a => a.isLoaded);
+    return this.applications.filter(a => a && a.isLoaded);
+  }
+
+  public visibleApps(): Array<Application> {
+    return this.applications.filter(a => a && a.isVisible);
   }
 
   public onLoadMoreStart() { this.loading = true; }
+
   public onLoadMoreEnd() { this.loading = false; }
 }

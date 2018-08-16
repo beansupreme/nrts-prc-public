@@ -20,8 +20,6 @@ export class ConfigService {
   // TODO: store these in URL instead
   private _baseLayerName = 'World Imagery'; // NB: must match a valid base layer name
   private _mapBounds: L.LatLngBounds = null;
-  private _mapCenter: L.LatLng = null;
-  private _mapZoom: number = null;
 
   constructor() { }
 
@@ -58,11 +56,5 @@ export class ConfigService {
 
   get mapBounds(): L.LatLngBounds { return this._mapBounds; }
   set mapBounds(val: L.LatLngBounds) { this._mapBounds = val; }
-
-  get mapCenter(): L.LatLng { return this._mapCenter; }
-  set mapCenter(val: L.LatLng) { this._mapCenter = val; }
-
-  get mapZoom(): number { return this._mapZoom; }
-  set mapZoom(val: number) { this._mapZoom = val; }
 
 }

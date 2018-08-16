@@ -11,12 +11,9 @@ import { ApplicationService } from 'app/services/application.service';
 import { ConfigService } from 'app/services/config.service';
 import { FiltersType } from 'app/applications/applist-filters/applist-filters.component';
 
-// NB: page size is calculated to optimize Waiting vs Download time
-// all 1414 at once => ~4.5 seconds
-// 15 pages of 100 => ~25 seconds
-// 6 pages of 250 => ~9 seconds
-// 3 pages of 500 => ~3.5 seconds
-const PAGE_SIZE = 500;
+// page size is calculated to look OK on mid-tier mobile
+// and not be too frantic on fast networks
+const PAGE_SIZE = 200;
 
 @Component({
   selector: 'app-applications',
@@ -29,6 +26,28 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   @ViewChild('appmap') appmap;
   @ViewChild('applist') applist;
   @ViewChild('appfilters') appfilters;
+
+  private _loading = false;
+  set isLoading(val: boolean) {
+    this._loading = val;
+    if (val) {
+      this.appmap.onLoadStart();
+      this.appfilters.onLoadStart();
+    } else {
+      this.appmap.onLoadEnd();
+      this.appfilters.onLoadEnd();
+    }
+  }
+
+  private _loadingExtended = false;
+  set isLoadingExtended(val: boolean) {
+    this._loadingExtended = val;
+    if (val) {
+      this.applist.onLoadMoreStart();
+    } else {
+      this.applist.onLoadMoreEnd();
+    }
+  }
 
   public listPageSize = 10;
   private snackBarRef: MatSnackBarRef<SimpleSnackBar> = null;
@@ -57,15 +76,16 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     this.filters = { ...this.appfilters.getFilters() };
 
     // load initial apps for map
-    this.getApps();
+    this._getApps();
   }
 
   // retrieves all apps (without extended data)
-  private getApps() {
+  private _getApps() {
     // do this in another event so it's not in current change detection cycle
     setTimeout(() => {
+      this.isLoading = true;
       this.snackBarRef = this.snackBar.open('Loading map ...');
-      this.applications = []; // empty the list
+      if (this.applications.length > 0) { this.applications = []; } // empty the list (except first time)
       this._getPageOfApps(0, PAGE_SIZE);
     }, 0);
   }
@@ -82,9 +102,8 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
           this._getPageOfApps(++pageNum, PAGE_SIZE);
         } else {
           // NB: this snackbar will automatically dismiss the previous snackbar
-          this.snackBarRef = this.snackBar.open('Map loaded !', null, { duration: 1000 });
-          // now load initial apps for list
-          this._getPageOfAppsExtended();
+          this.snackBarRef.dismiss();
+          this.isLoading = false;
         }
       }, error => {
         console.log(error);
@@ -100,31 +119,33 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
     let numToLoad = 0;
     let numRemaining = 0;
 
-    // TODO: load as batch (instead of individually)
     for (let i = 0; i < this.applications.length; i++) {
-      if (this.applications[i].isLoaded) { continue; }
-      if (numToLoad++ >= this.configService.listPageSize) { break; }
+      if (this.applications[i]) { // safety check
+        if (!this.applications[i].isVisible) { continue; } // skip over hidden apps
+        if (this.applications[i].isLoaded) { continue; } // skip over already-loaded apps
+        if (numToLoad++ >= this.configService.listPageSize) { break; }
 
-      if (!isStarted) {
-        this.applist.onLoadMoreStart();
-        isStarted = true;
+        if (!isStarted) {
+          this.isLoadingExtended = true;
+          isStarted = true;
+        }
+
+        numRemaining++;
+        this.applicationService.getById(this.applications[i]._id)
+          .takeUntil(this.ngUnsubscribe)
+          .subscribe(
+            application => {
+              // update this element in the main list
+              this.applications[i] = application;
+              if (--numRemaining <= 0) {
+                this.isLoadingExtended = false;
+              }
+            },
+            error => {
+              console.log(error);
+              this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
+            });
       }
-
-      numRemaining++;
-      this.applicationService.getById(this.applications[i]._id)
-        .takeUntil(this.ngUnsubscribe)
-        .subscribe(
-          application => {
-            // update this element in the main list
-            this.applications[i] = application;
-            if (--numRemaining <= 0) {
-              this.applist.onLoadMoreEnd();
-            }
-          },
-          error => {
-            console.log(error);
-            this.snackBarRef = this.snackBar.open('Uh-oh, couldn\'t load application', null, { duration: 3000 });
-          });
     }
   }
 
@@ -138,7 +159,7 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
    */
   public onUpdateMatching(filters: FiltersType) {
     this.filters = { ...filters };
-    this.getApps();
+    if (!this.isLoading) { this._getApps(); } // safety check
   }
 
   /**
@@ -149,7 +170,16 @@ export class ApplicationsComponent implements OnInit, OnDestroy {
   /**
    * Event handler called when Load More button is clicked.
    */
-  public onLoadMore() { this._getPageOfAppsExtended(); }
+  public onLoadMore() {
+    if (!this.isLoadingExtended) { this._getPageOfAppsExtended(); } // safety check
+  }
+
+  /**
+   * Event handler called when map needs to reload list.
+   */
+  public onReloadList() {
+    if (!this.isLoadingExtended) { this._getPageOfAppsExtended(); } // safety check
+  }
 
   /**
    * Event handler called when List Page Size input has changed.
