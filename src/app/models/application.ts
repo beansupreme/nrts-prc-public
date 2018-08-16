@@ -46,6 +46,7 @@ export class Application {
   areaHectares: number; // calculated from all features
 
   isVisible = true; // whether this application is visible on map
+                    // default is true - for apps without features
   isLoaded = false; // whether all related app data (comment period, shapes, etc) is loaded
   appStatus: string = null; // derived application status for app list display
   cpStatus: string = null; // derived comment period status for app list display

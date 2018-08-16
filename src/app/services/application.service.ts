@@ -10,7 +10,6 @@ import * as _ from 'lodash';
 import { Application } from 'app/models/application';
 import { ApiService } from './api';
 import { DocumentService } from './document.service';
-// import { OrganizationService } from './organization.service';
 import { CommentPeriodService } from './commentperiod.service';
 import { DecisionService } from './decision.service';
 import { SearchService } from './search.service';
@@ -137,14 +136,7 @@ export class ApplicationService {
 
         const promises: Array<Promise<any>> = [];
 
-        // now get the organization for each application
-        // applications.forEach((application, i) => {
-        //   if (applications[i]._organization) {
-        //     promises.push(this.organizationService.getById(applications[i]._organization)
-        //       .toPromise()
-        //       .then(organization => application.organization = organization));
-        //   }
-        // });
+        // FUTURE: get the organization for each application here
 
         // now get the current comment period for each application
         applications.forEach((application, i) => {
@@ -228,13 +220,7 @@ export class ApplicationService {
 
         const promises: Array<Promise<any>> = [];
 
-        // now get the organization
-        // if (application._organization) {
-        //   promises.push(this.organizationService.getById(application._organization, forceReload)
-        //     .toPromise()
-        //     .then(organization => application.organization = organization)
-        //   );
-        // }
+        // FUTURE: get the organization here
 
         // now get the documents
         promises.push(this.documentService.getAllByApplicationId(application._id)

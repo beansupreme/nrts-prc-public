@@ -149,14 +149,14 @@ export class ApplicationComponent implements OnInit, OnDestroy {
 
                   // draw features for this app
                   const appFG = L.featureGroup(); // layers for current app
-                  features.forEach(f => {
+                  for (const f of features) {
                     const feature = JSON.parse(JSON.stringify(f));
                     // needs to be valid GeoJSON
                     delete feature.geometry_name;
                     const featureObj: GeoJSON.Feature<any> = feature;
                     const layer = L.geoJSON(featureObj, {});
                     layer.addTo(appFG);
-                  });
+                  }
                   self.appFG = appFG; // save it
                   appFG.addTo(self.map); // add to map
 

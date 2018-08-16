@@ -192,3 +192,9 @@ $app-filters-font-lg: 0.9375rem;
     display: none;
   }
 }
+
+a.disabled {
+  color: gray;
+  cursor: not-allowed;
+  text-decoration: underline;
+}
