@@ -147,7 +147,32 @@ export class ApiService {
       'subpurpose',
       'tantalisID'
     ];
-    const queryString = 'application/' + id + '?fields=' + this.buildValues(fields);
+    const queryString = `application/${id}?fields=${this.buildValues(fields)}`;
+    return this.get(queryString);
+  }
+
+  getApplicationByTantalisId(tantalisId: number) {
+    const fields = [
+      'agency',
+      'cl_file',
+      'client',
+      'code',
+      'description',
+      'internal',
+      'internalID',
+      'latitude',
+      'legalDescription',
+      'longitude',
+      'name',
+      'postID',
+      'publishDate',
+      'purpose',
+      'region',
+      'status',
+      'subpurpose',
+      'tantalisID'
+    ];
+    const queryString = `application?tantalisID=${tantalisId}&fields=${this.buildValues(fields)}`;
     return this.get(queryString);
   }
 
@@ -334,23 +359,18 @@ export class ApiService {
   //
   // Crown Lands files
   //
-  getBCGWCrownLands(id: string) {
-    const fields = ['name', 'isImported'];
-    const queryString = 'search/bcgw/crownLandsId/' + id + '?fields=' + this.buildValues(fields);
+  getAppsByCLID(clid: string) {
+    const queryString = 'search/bcgw/crownLandsId/' + clid;
     return this.get(queryString);
   }
 
-  getBCGWDispositionTransactionId(id: number) {
-    const fields = [
-      'name'
-    ];
-    const queryString = 'search/bcgw/dispositionTransactionId/' + id + '?fields=' + this.buildValues(fields);
+  getAppsByDTID(dtid: number) {
+    const queryString = 'search/bcgw/dispositionTransactionId/' + dtid;
     return this.get(queryString);
   }
 
-  getClientsInfoByDispositionId(id: number) {
-    const fields = ['name'];
-    const queryString = 'search/bcgw/getClientsInfoByDispositionId/' + id + '?fields=' + this.buildValues(fields);
+  getClientsByDTID(dtid: number) {
+    const queryString = 'search/bcgw/getClientsInfoByDispositionId/' + dtid;
     return this.get(queryString);
   }
 

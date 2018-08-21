@@ -94,7 +94,7 @@ export class ApplicationComponent implements OnInit, OnDestroy {
             this.searchService.getByDTID(this.application.tantalisID, true)
               .takeUntil(this.ngUnsubscribe)
               .subscribe(
-                features => {
+                search => {
                   const Esri_OceanBasemap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}', {
                     attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
                     maxZoom: 13
@@ -149,7 +149,7 @@ export class ApplicationComponent implements OnInit, OnDestroy {
 
                   // draw features for this app
                   const appFG = L.featureGroup(); // layers for current app
-                  for (const f of features) {
+                  for (const f of search.features) {
                     const feature = JSON.parse(JSON.stringify(f));
                     // needs to be valid GeoJSON
                     delete feature.geometry_name;
