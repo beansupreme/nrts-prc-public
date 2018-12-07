@@ -10,7 +10,7 @@ import 'rxjs/add/observable/of';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-import { FiltersType } from 'app/applications/applist-filters/applist-filters.component';
+import { FiltersType } from 'app/applications/applications.component';
 import { Application } from 'app/models/application';
 import { ApiService } from './api';
 import { DocumentService } from './document.service';
@@ -57,7 +57,7 @@ export class ApplicationService {
     const publishSince = filters.publishFrom ? filters.publishFrom.toISOString() : null;
     const publishUntil = filters.publishTo ? filters.publishTo.toISOString() : null;
 
-    // convert application statuses
+    // convert application statuses from codes to strings
     const appStatuses = _.flatMap(filters.appStatuses, statusCode => this.getTantalisStatus(statusCode));
 
     // handle comment period filtering
@@ -67,7 +67,7 @@ export class ApplicationService {
     // if both cpOpen and cpNotOpen or neither cpOpen nor cpNotOpen then use no cpStart or cpEnd filters
     if ((cpOpen && cpNotOpen) || (!cpOpen && !cpNotOpen)) {
       return this.api.getCountApplications(null, null, null, null, appStatuses, filters.applicant,
-        filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates)
+        filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates)
         .catch(this.api.handleError);
     }
 
@@ -79,16 +79,16 @@ export class ApplicationService {
     // if cpOpen then filter by cpStart <= today && cpEnd >= today
     if (cpOpen) {
       return this.api.getCountApplications(null, now.endOf('day').toISOString(), now.startOf('day').toISOString(), null,
-        appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates)
+        appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates)
         .catch(this.api.handleError);
     }
 
     // else cpNotOpen (ie, closed or future) then filter by cpEnd <= yesterday || cpStart >= tomorrow
     // NB: this doesn't return apps without comment periods
     const closed = this.api.getCountApplications(null, null, null, yesterday.endOf('day').toISOString(),
-      appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates);
+      appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates);
     const future = this.api.getCountApplications(tomorrow.startOf('day').toISOString(), null, null, null,
-      appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates);
+      appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates);
 
     return Observable.combineLatest(closed, future, (v1, v2) => v1 + v2)
       .catch(this.api.handleError);
@@ -100,7 +100,7 @@ export class ApplicationService {
     const publishSince = filters.publishFrom ? filters.publishFrom.toISOString() : null;
     const publishUntil = filters.publishTo ? filters.publishTo.toISOString() : null;
 
-    // convert application statuses
+    // convert application statuses from codes to strings
     const appStatuses = _.flatMap(filters.appStatuses, statusCode => this.getTantalisStatus(statusCode));
 
     // handle comment period filtering
@@ -110,7 +110,7 @@ export class ApplicationService {
     // if both cpOpen and cpNotOpen or neither cpOpen nor cpNotOpen then use no cpStart or cpEnd filters
     if ((cpOpen && cpNotOpen) || (!cpOpen && !cpNotOpen)) {
       return this.api.getApplications(pageNum, pageSize, null, null, null, null, appStatuses, filters.applicant,
-        filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates)
+        filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates)
         .map(res => {
           const applications = res.text() ? res.json() : [];
           applications.forEach((application, i) => {
@@ -129,7 +129,7 @@ export class ApplicationService {
     // if cpOpen then filter by cpStart <= today && cpEnd >= today
     if (cpOpen) {
       return this.api.getApplications(pageNum, pageSize, null, now.endOf('day').toISOString(), now.startOf('day').toISOString(),
-        null, appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates)
+        null, appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates)
         .map(res => {
           const applications = res.text() ? res.json() : [];
           applications.forEach((application, i) => {
@@ -143,9 +143,9 @@ export class ApplicationService {
     // else cpNotOpen (ie, closed or future) then filter by cpEnd <= yesterday || cpStart >= tomorrow
     // NB: this doesn't return apps without comment periods
     const closed = this.api.getApplications(pageNum, pageSize, null, null, null, yesterday.endOf('day').toISOString(),
-      appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates);
+      appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates);
     const future = this.api.getApplications(pageNum, pageSize, tomorrow.startOf('day').toISOString(), null, null, null,
-      appStatuses, filters.applicant, filters.clidDtid, filters.purpose, filters.subpurpose, publishSince, publishUntil, coordinates);
+      appStatuses, filters.applicant, filters.clidDtid, filters.purposes, filters.subpurposes, publishSince, publishUntil, coordinates);
 
     return Observable.merge(closed, future)
       .map(res => {

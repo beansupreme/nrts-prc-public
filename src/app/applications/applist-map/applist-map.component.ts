@@ -50,8 +50,6 @@ const markerIconLg = L.icon({
 export class ApplistMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   @Input() applications: Array<Application> = []; // from applications component
-  @Input() applist; // from applications component
-  @Input() appfilters; // from applications component
   @Output() toggleCurrentApp = new EventEmitter(); // to applications component
   @Output() updateCoordinates = new EventEmitter(); // to applications component
   @Output() setCurrentApp = new EventEmitter(); // to applications component
@@ -208,15 +206,6 @@ export class ApplistMapComponent implements AfterViewInit, OnChanges, OnDestroy 
     // add markers group
     this.map.addLayer(this.markerClusterGroup);
 
-    // // add reset view control
-    // this.map.addControl(new resetViewControl());
-
-    // // add zoom control
-    // L.control.zoom({ position: 'topright' }).addTo(this.map);
-
-    // // add scale control
-    // L.control.scale({ position: 'bottomright' }).addTo(this.map);
-
     // add base maps layers control
     const baseLayers = {
       'Ocean Base': Esri_OceanBasemap,
@@ -287,17 +276,10 @@ export class ApplistMapComponent implements AfterViewInit, OnChanges, OnDestroy 
       if (changes.applications && !changes.applications.firstChange && changes.applications.currentValue) {
         // console.log('map: got changed apps =', changes.applications);
 
-        // FUTURE: for better performance and to reduce flashing markers,
-        //         if an app is both deleted and added then ignore it (or reassign it)
-        // _.intersection()?
-        // _.without()?
-        // _.xor()?
         const deletedApps = _.differenceBy(changes.applications.previousValue as Array<Application>, changes.applications.currentValue as Array<Application>, '_id');
         const addedApps = _.differenceBy(changes.applications.currentValue as Array<Application>, changes.applications.previousValue as Array<Application>, '_id');
         // console.log('deleted =', deletedApps);
         // console.log('added =', addedApps);
-        // console.log('without =', _.without(changes.applications.previousValue as Array<Application>, ...changes.applications.currentValue as Array<Application>));
-        // console.log('xor =', _.xor(changes.applications.previousValue as Array<Application>, changes.applications.currentValue as Array<Application>));
 
         // (re)draw the matching apps
         this.drawMap(deletedApps, addedApps);

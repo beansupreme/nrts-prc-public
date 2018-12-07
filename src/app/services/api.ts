@@ -94,7 +94,7 @@ export class ApiService {
   // Applications
   //
   getCountApplications(cpStartSince: string, cpStartUntil: string, cpEndSince: string, cpEndUntil: string, appStatuses: string[],
-    applicant: string, clidDtid: string, purpose: string, subpurpose: string, publishSince: string, publishUntil: string,
+    applicant: string, clidDtid: string, purposes: string[], subpurposes: string[], publishSince: string, publishUntil: string,
     coordinates: string): Observable<number> {
     let queryString = `application?`;
     if (cpStartSince !== null) { queryString += `cpStart[since]=${cpStartSince}&`; }
@@ -103,8 +103,8 @@ export class ApiService {
     if (cpEndUntil !== null) { queryString += `cpEnd[until]=${cpEndUntil}&`; }
     if (appStatuses !== null) { appStatuses.forEach(status => queryString += `status[eq]=${status}&`); }
     if (applicant !== null) { queryString += `client=${applicant}&`; }
-    if (purpose !== null) { queryString += `purpose[eq]=${purpose}&`; }
-    if (subpurpose !== null) { queryString += `subpurpose[eq]=${subpurpose}&`; }
+    if (purposes !== null) { purposes.forEach(purpose => queryString += `purpose[eq]=${purpose}&`); }
+    if (subpurposes !== null) { subpurposes.forEach(subpurpose => queryString += `subpurpose[eq]=${subpurpose}&`); }
     if (publishSince !== null) { queryString += `publishDate[since]=${publishSince}&`; }
     if (publishUntil !== null) { queryString += `publishDate[until]=${publishUntil}&`; }
     if (coordinates !== null) { queryString += `centroid=${coordinates}&`; }
@@ -128,7 +128,7 @@ export class ApiService {
   }
 
   getApplications(pageNum: number, pageSize: number, cpStartSince: string, cpStartUntil: string, cpEndSince: string, cpEndUntil: string,
-    appStatuses: string[], applicant: string, clidDtid: string, purpose: string, subpurpose: string, publishSince: string, publishUntil: string,
+    appStatuses: string[], applicant: string, clidDtid: string, purposes: string[], subpurposes: string[], publishSince: string, publishUntil: string,
     coordinates: string) {
     const fields = [
       'agency',
@@ -160,8 +160,8 @@ export class ApiService {
     if (cpEndUntil !== null) { queryString += `cpEnd[until]=${cpEndUntil}&`; }
     if (appStatuses !== null) { appStatuses.forEach(status => queryString += `status[eq]=${status}&`); }
     if (applicant !== null) { queryString += `client=${applicant}&`; }
-    if (purpose !== null) { queryString += `purpose[eq]=${purpose}&`; }
-    if (subpurpose !== null) { queryString += `subpurpose[eq]=${subpurpose}&`; }
+    if (purposes !== null) { purposes.forEach(purpose => queryString += `purpose[eq]=${purpose}&`); }
+    if (subpurposes !== null) { subpurposes.forEach(subpurpose => queryString += `subpurpose[eq]=${subpurpose}&`); }
     if (publishSince !== null) { queryString += `publishDate[since]=${publishSince}&`; }
     if (publishUntil !== null) { queryString += `publishDate[until]=${publishUntil}&`; }
     if (coordinates !== null) { queryString += `centroid=${coordinates}&`; }
