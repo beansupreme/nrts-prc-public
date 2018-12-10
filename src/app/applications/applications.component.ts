@@ -181,7 +181,8 @@ export class ApplicationsComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.apps = applications;
               } else {
                 // NB: OnChanges event will update the components that use this array
-                this.apps = _.concat(this.apps, applications);
+                // NB: remove duplicates (eg, due to bad data such as multiple comment periods)
+                this.apps = _.uniqBy(_.concat(this.apps, applications), app => app._id);
               }
             }, error => {
               console.log(error);
