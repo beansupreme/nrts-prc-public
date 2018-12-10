@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ParamMap, Params, ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
+import 'rxjs/add/operator/share';
 import * as _ from 'lodash';
 
 //
@@ -35,9 +36,10 @@ export class UrlService {
 
     // create a new observable that publishes only the NavigationEnd event
     // used for subscribers to know when to refresh their parameters
+    // NB: use share() so this fires only once each time even with multiple subscriptions
     this.onNavEnd$ = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ) as Observable<NavigationEnd>;
+      filter(event => (event instanceof NavigationEnd))
+    ).share() as Observable<NavigationEnd>;
   }
 
   // query for specified key in URL params
@@ -61,12 +63,9 @@ export class UrlService {
   // update browser URL
   // NB: debounced function executes when 250ms have elapsed since last call
   // tslint:disable-next-line:member-ordering
-  private navigate = _.debounce(this._navigate, 250);
-
-  // NB: call navigate() instead!
-  private _navigate() {
+  private navigate = _.debounce(() => {
     // this.location.go(this.router.createUrlTree([], { relativeTo: this.route, queryParams: params }).toString());
     this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: this._params, replaceUrl: true });
-  }
+  }, 250);
 
 }

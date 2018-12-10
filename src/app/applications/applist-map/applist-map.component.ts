@@ -80,7 +80,6 @@ export class ApplistMapComponent implements AfterViewInit, OnChanges, OnDestroy 
     this.urlService.onNavEnd$
       .takeUntil(this.ngUnsubscribe)
       .subscribe(() => {
-        // console.log('nav end event');
         // // try to load new map state
         // if (this.isMapReady) {
         //   const lat = this.urlService.query('lat');
@@ -327,13 +326,10 @@ export class ApplistMapComponent implements AfterViewInit, OnChanges, OnDestroy 
    * Debounced function executes when 250ms have elapsed since last call.
    */
   // tslint:disable-next-line:member-ordering
-  private emitCoordinates = _.debounce(this._emitCoordinates, 250);
-
-  // NB: Call emitCoordinates() instead!
-  private _emitCoordinates() {
-    // console.log('setting visible');
+  private emitCoordinates = _.debounce(() => {
+    // console.log('emitting coordinates');
     this.updateCoordinates.emit(this.getCoordinates());
-  }
+  }, 250);
 
   /**
    * Returns coordinates in GeoJSON format that specify map bounding box.
