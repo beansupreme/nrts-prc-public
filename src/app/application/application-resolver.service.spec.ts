@@ -1,10 +1,14 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { ApplicationResolver } from './application-resolver.service';
+import { ApplicationService } from 'app/services/application.service';
 
 describe('ApplicationResolver', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ApplicationResolver]
+      providers: [
+        ApplicationResolver,
+        { provide: ApplicationService }
+      ]
     });
   });
 
