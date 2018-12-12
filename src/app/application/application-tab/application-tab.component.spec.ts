@@ -3,6 +3,10 @@ import { ApplicationTabComponent } from './application-tab.component';
 import { NewlinesPipe } from 'app/pipes/newlines.pipe';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ApiService } from 'app/services/api';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
+import { Application } from 'app/models/application';
+import { ActivatedRoute } from '@angular/router';
 
 describe('ApplicationTabComponent', () => {
   let component: ApplicationTabComponent;
@@ -13,12 +17,22 @@ describe('ApplicationTabComponent', () => {
     }
   }
 
+  const existingApplication = new Application();
+
+  const activatedRouteStub = {
+    parent: {
+      data: Observable.of({application: existingApplication}),
+      snapshot: {}
+    }
+  };
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule],
       declarations: [ApplicationTabComponent, NewlinesPipe],
       providers: [
         { provide: ApiService, useValue: apiServiceStub },
+        { provide: ActivatedRoute, useValue: activatedRouteStub }
       ]
     })
       .compileComponents();
@@ -30,11 +44,11 @@ describe('ApplicationTabComponent', () => {
     fixture.detectChanges();
   });
 
-  xit('should be created', () => {
+  it('should be created', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('renders the document url and document file name on the page', () => {
+  it('renders the document url and document file name on the page', () => {
     const fixture = TestBed.createComponent(ApplicationTabComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;

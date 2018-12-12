@@ -3,12 +3,15 @@ import { AddCommentComponent } from './add-comment.component';
 import { FormsModule } from '@angular/forms';
 import { FileUploadComponent } from 'app/file-upload/file-upload.component';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatProgressBarModule } from '@angular/material';
 import { CommentService } from 'app/services/comment.service';
 import { DocumentService } from 'app/services/document.service';
+import { CommentPeriod } from 'app/models/commentperiod';
 
 describe('AddCommentComponent', () => {
   let component: AddCommentComponent;
   let fixture: ComponentFixture<AddCommentComponent>;
+  const commentPeriod = new CommentPeriod({});
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -17,7 +20,8 @@ describe('AddCommentComponent', () => {
         FileUploadComponent
       ],
       imports: [
-        FormsModule
+        FormsModule,
+        MatProgressBarModule
       ],
       providers: [
         NgbActiveModal,
@@ -31,10 +35,11 @@ describe('AddCommentComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AddCommentComponent);
     component = fixture.componentInstance;
+    component.currentPeriod = commentPeriod;
     fixture.detectChanges();
   });
 
-  xit('should create', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -19,6 +19,9 @@ describe('DateInputComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DateInputComponent);
     component = fixture.componentInstance;
+    component.date = new Date(2018, 12, 12);
+    component.minDate = new Date(2018, 1, 1);
+    component.maxDate = new Date(2018, 12, 30);
     fixture.detectChanges();
   });
 
