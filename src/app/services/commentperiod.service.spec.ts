@@ -1,10 +1,10 @@
-import { TestBed, inject } from '@angular/core/testing';
-import { CommentPeriodService } from './commentperiod.service';
-import { ApiService } from './api';
-
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
+import { TestBed } from '@angular/core/testing';
 import { CommentPeriod } from 'app/models/commentperiod';
+import 'rxjs/add/observable/of';
+import { Observable } from 'rxjs/Observable';
+import { ApiService } from './api';
+import { CommentPeriodService } from './commentperiod.service';
+
 
 describe('CommentPeriodService', () => {
   beforeEach(() => {
@@ -184,14 +184,13 @@ describe('CommentPeriodService', () => {
       describe('when no comment period is cached', () => {
         it('calls the api to fetch a comment period', () => {
           apiSpy.getPeriod.and.returnValue(
-            Observable.of({ text: () => 'notNull', json: () => [{ _id: '1' }] })
+            Observable.of({ text: () => 'notNull', json: () => [{ _id: '3' }] })
           );
 
-          // assert cached comment period is returned
           service
             .getById('1')
             .subscribe(result =>
-              expect(result).toEqual(new CommentPeriod({ _id: '1' }))
+              expect(result).toEqual(new CommentPeriod({ _id: '3' }))
             );
         });
       });
