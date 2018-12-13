@@ -1,10 +1,19 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { OrganizationService } from './organization.service';
+import { ApiService } from './api';
 
 describe('OrganizationService', () => {
+  const apiServiceSpy = jasmine.createSpyObj('ApiService', [
+    'getOrganizations',
+    'getOrganization'
+  ]);
+
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [OrganizationService]
+      providers: [
+        OrganizationService,
+        { provide: ApiService, useValue: apiServiceSpy }
+      ]
     });
   });
 
