@@ -353,7 +353,7 @@ describe('CommentPeriodService', () => {
 
     it('returns a human readable NOT OPEN status string', () => {
       expect(service.getStatusString(service.NOT_OPEN)).toEqual(
-        'Commenting Closed'
+        'Not Open For Commenting'
       );
     });
 
