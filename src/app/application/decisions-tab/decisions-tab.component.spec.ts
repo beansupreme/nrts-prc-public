@@ -40,7 +40,7 @@ describe('DecisionsTabComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        DecisionsTabComponent, 
+        DecisionsTabComponent,
         NewlinesPipe,
         VarDirective
       ],

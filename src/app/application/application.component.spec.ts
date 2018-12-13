@@ -26,7 +26,7 @@ describe('ApplicationComponent', () => {
   const commentPeriodService = new CommentPeriodService(
     apiServiceSpy
   );
-  
+
   const applicationService = new ApplicationService(
     apiServiceSpy,
     jasmine.createSpyObj('DocumentService', ['getAllByApplicationId']),

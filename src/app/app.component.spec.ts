@@ -20,7 +20,7 @@ describe('AppComponent', () => {
 
   const cookieServiceStub = {
     get() { return true; }
-  }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -30,7 +30,7 @@ describe('AppComponent', () => {
         FooterComponent
       ],
       imports: [
-        RouterTestingModule, 
+        RouterTestingModule,
         Ng2PageScrollModule.forRoot(),
       ],
       providers: [

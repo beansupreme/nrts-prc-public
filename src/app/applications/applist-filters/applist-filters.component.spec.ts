@@ -16,7 +16,7 @@ describe('ApplistFiltersComponent', () => {
   const commentPeriodService = new CommentPeriodService(
     apiServiceSpy
   );
-  
+
   const applicationService = new ApplicationService(
     apiServiceSpy,
     jasmine.createSpyObj('DocumentService', ['getAllByApplicationId']),
@@ -29,8 +29,8 @@ describe('ApplistFiltersComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ApplistFiltersComponent, VarDirective],
       imports: [
-        NgbModule, 
-        FormsModule, 
+        NgbModule,
+        FormsModule,
         RouterTestingModule
       ],
       providers: [

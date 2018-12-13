@@ -29,18 +29,18 @@ describe('ApplicationsComponent', () => {
     },
 
     getAllFull() {
-      let applicationOne = new Application();
-      let applicationTwo = new Application();
+      const applicationOne = new Application();
+      const applicationTwo = new Application();
       return Observable.of([applicationOne, applicationTwo]);
     }
-  }
+  };
 
-  
+
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [
-        ApplicationsComponent, 
+        ApplicationsComponent,
         ApplistFiltersComponent,
         ApplistListComponent,
         ApplistMapComponent,

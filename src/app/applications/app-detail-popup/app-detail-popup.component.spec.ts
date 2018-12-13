@@ -27,17 +27,17 @@ xdescribe('AppDetailPopupComponent', () => {
     isDisallowed() { return false; },
     isSuspended() { return false; },
     isUnknown() { return false; },
-  }
+  };
 
   const stubCommentPeriodService = {
-    isOpen() { 
+    isOpen() {
       return true;
     }
-  }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ 
+      declarations: [
         AppDetailPopupComponent,
         VarDirective
       ],

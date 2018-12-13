@@ -8,9 +8,9 @@ describe('FooterComponent', () => {
   let component: FooterComponent;
   let fixture: ComponentFixture<FooterComponent>;
 
-  let apiServiceStub = {
+  const apiServiceStub = {
     adminUrl: 'http://localhost:4000/admin/'
-  }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -34,8 +34,6 @@ describe('FooterComponent', () => {
   });
 
   it('it renders a link to the admin page using the api service admin url', () => {
-    const fixture = TestBed.createComponent(FooterComponent);
-    fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
     const adminLink = compiled.querySelector('a.gtm-admin-login');
     expect(adminLink.textContent).toContain('Admin Login');

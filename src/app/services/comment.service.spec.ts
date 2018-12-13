@@ -8,7 +8,7 @@ import { CommentService } from './comment.service';
 import { CommentPeriodService } from './commentperiod.service';
 import { DocumentService } from './document.service';
 
-fdescribe('CommentService', () => {
+describe('CommentService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -224,7 +224,7 @@ fdescribe('CommentService', () => {
     });
 
     describe('when an exception is thrown', () => {
-      fit('ApiService.handleError is called and the error is re-thrown', () => {
+      it('ApiService.handleError is called and the error is re-thrown', () => {
         commentPeriodServiceSpy.getAllByApplicationId.and.returnValue(() => {
           Observable.of(() => {
             throw Error('someError');

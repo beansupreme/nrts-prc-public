@@ -30,9 +30,9 @@ describe('CommentingTabComponent', () => {
 
   const commentServiceStub = {
     getAllByApplicationId() {
-      return Observable.of([new Comment({})])
+      return Observable.of([new Comment({})]);
     }
-  }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({

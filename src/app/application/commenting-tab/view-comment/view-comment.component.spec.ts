@@ -15,16 +15,16 @@ describe('ViewCommentComponent', () => {
 
   const commentServiceStub = {
     getById() {
-      let comment = new Comment();
+      const comment = new Comment();
       return Observable.of(comment);
     }
   };
 
   const apiServiceStub = {
-    getDocumentUrl() { 
+    getDocumentUrl() {
       return 'http://fake.host/document/2';
     }
-  }
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
