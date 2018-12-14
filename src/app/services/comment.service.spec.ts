@@ -375,7 +375,7 @@ describe('CommentService', () => {
             Observable.of([new Document({ _id: '6' })]),
             Observable.throw(
               Error(
-                'Was not expecting document service to be called more than once.'
+                'Was not expecting DocumentService.getAllByCommentId to be called more than once.'
               )
             )
           );
@@ -392,26 +392,29 @@ describe('CommentService', () => {
     describe('when forceReload is set to false', () => {
       describe('when a comment is cached', () => {
         beforeEach(async(() => {
-          // Required mocking, unrelated to cache
           documentServiceSpy.getAllByCommentId.and.returnValues(
             Observable.of([new Document({ _id: '7' })]),
             Observable.throw(
               Error(
-                'Was not expecting document service to be called more than once.'
+                'Was not expecting DocumentService.getAllByCommentId to be called more than once.'
+              )
+            )
+          );
+
+          apiSpy.getComment.and.returnValues(
+            Observable.of({
+              text: () => 'notNull',
+              json: () => [{ _id: '1' }]
+            }),
+            Observable.throw(
+              Error(
+                'Was not expecting ApIService.getComment to be called more than once.'
               )
             )
           );
 
           // call once to set the cache
-          apiSpy.getComment.and.returnValue(
-            Observable.of({ text: () => 'notNull', json: () => [{ _id: '1' }] })
-          );
           service.getById('1', true).subscribe();
-
-          // update spy to return a different comment period
-          apiSpy.getComment.and.returnValue(
-            Observable.of({ text: () => 'notNull', json: () => [{ _id: '2' }] })
-          );
         }));
 
         it('returns the cached comment', async(() => {
@@ -434,7 +437,7 @@ describe('CommentService', () => {
             Observable.of([new Document({ _id: '8' })]),
             Observable.throw(
               Error(
-                'Was not expecting document service to be called more than once.'
+                'Was not expecting DocumentService.getAllByCommentId to be called more than once.'
               )
             )
           );

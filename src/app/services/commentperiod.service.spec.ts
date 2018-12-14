@@ -162,16 +162,20 @@ describe('CommentPeriodService', () => {
     describe('when forceReload is set to false', () => {
       describe('when a comment period is cached', () => {
         beforeEach(async(() => {
-          // call once to set the cache
-          apiSpy.getPeriod.and.returnValue(
-            Observable.of({ text: () => 'notNull', json: () => [{ _id: '1' }] })
+          apiSpy.getPeriod.and.returnValues(
+            Observable.of({
+              text: () => 'notNull',
+              json: () => [{ _id: '1' }]
+            }),
+            Observable.throw(
+              Error(
+                'Was not expecting ApiService.getPeriod to be called more than once.'
+              )
+            )
           );
-          service.getById('1', true).subscribe();
 
-          // update spy to return a different comment period
-          apiSpy.getPeriod.and.returnValue(
-            Observable.of({ text: () => 'notNull', json: () => [{ _id: '2' }] })
-          );
+          // call once to set the cache
+          service.getById('1', true).subscribe();
         }));
 
         it('returns the cached comment period', async(() => {
