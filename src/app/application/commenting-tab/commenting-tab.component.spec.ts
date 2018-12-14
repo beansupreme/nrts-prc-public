@@ -8,18 +8,33 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import { Application } from 'app/models/application';
 import { Comment } from 'app/models/comment';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('CommentingTabComponent', () => {
   let component: CommentingTabComponent;
   let fixture: ComponentFixture<CommentingTabComponent>;
 
   const existingApplication = new Application();
-  const activatedRouteStub = {
-    parent: {
-      data: Observable.of({application: existingApplication}),
-      snapshot: {}
+  const validRouteData = {application: existingApplication};
+
+  class ActivatedRouteStub {
+    constructor(initialData) {
+      this.setData(initialData)
     }
+
+    public parent = {
+      data: Observable.of({})
+    };
+
+    public setData(data: {}) {
+      this.parent.data = Observable.of(data);
+    }
+  }
+
+  const activatedRouteStub = new ActivatedRouteStub(validRouteData);
+
+  const routerSpy = {
+    navigate: jasmine.createSpy('navigate')
   };
 
   const commentPeriodServiceStub = {
@@ -42,7 +57,8 @@ describe('CommentingTabComponent', () => {
         { provide: CommentService, useValue: commentServiceStub },
         { provide: CommentPeriodService, useValue: commentPeriodServiceStub },
         { provide: DialogService },
-        { provide: ActivatedRoute, useValue: activatedRouteStub }
+        { provide: ActivatedRoute, useValue: activatedRouteStub },
+        { provide: Router, useValue: routerSpy },
       ]
     })
       .compileComponents();
@@ -56,5 +72,27 @@ describe('CommentingTabComponent', () => {
 
   it('should be created', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('when the application is retrievable from the route', () => {
+    beforeEach(() => {
+      activatedRouteStub.setData(validRouteData);
+    });
+
+    it('sets the component application to the one from the route', () => {
+      expect(component.application).toEqual(existingApplication);
+    });
+  });
+
+  describe('when the application is not available from the route', () => {
+    beforeEach(() => {
+      activatedRouteStub.setData({something: 'went wrong'});
+    });
+
+    it('redirects to /applications', () => {
+      component.ngOnInit();
+      expect(component.loading).toEqual(false);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/applications']);
+    });
   });
 });
