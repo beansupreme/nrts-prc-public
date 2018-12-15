@@ -79,7 +79,7 @@ describe('CommentingTabComponent', () => {
         jasmine.clock().install();
 
         const currentTime = new Date(2018, 12, 1);
-        let today = moment(currentTime).toDate();
+        const today = moment(currentTime).toDate();
         jasmine.clock().mockDate(today);
         existingApplication.currentPeriod = appCommentPeriod;
       });
@@ -103,7 +103,7 @@ describe('CommentingTabComponent', () => {
 
         expect(component.daysRemaining).toEqual('1 Day Remaining');
       });
-      
+
 
       it('uses negative values when the date is in the past', () => {
         appCommentPeriod.endDate = new Date(2018, 11, 29);
@@ -117,11 +117,11 @@ describe('CommentingTabComponent', () => {
         beforeEach(() => {
           existingApplication.currentPeriod = null;
         });
-        
-        it('sets daysRemaining as a "?" ', () => {  
-          let thisFixture = TestBed.createComponent(CommentingTabComponent);
-          let thisComponent = thisFixture.componentInstance;
-  
+
+        it('sets daysRemaining as a "?" ', () => {
+          const thisFixture = TestBed.createComponent(CommentingTabComponent);
+          const thisComponent = thisFixture.componentInstance;
+
           expect(thisComponent.daysRemaining).toEqual('?');
         });
       });
@@ -138,7 +138,7 @@ describe('CommentingTabComponent', () => {
         activatedRouteStub.setParentData({application: application});
         commentService = TestBed.get(CommentService);
       });
-      
+
       it('calls commentService getAllByApplicationId with the app id from the route', () => {
         spyOn(commentService, 'getAllByApplicationId').and.callThrough();
 

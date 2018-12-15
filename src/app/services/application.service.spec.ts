@@ -19,9 +19,9 @@ describe('ApplicationService', () => {
     getApplication(id: string) {
       const response = {
         text() {
-          return [{_id: id, status: 'ACCEPTED'}]
+          return [{_id: id, status: 'ACCEPTED'}];
         }
-      }
+      };
       return Observable.of(response);
     },
 
@@ -33,7 +33,7 @@ describe('ApplicationService', () => {
             {_id: 'BBBB', status: 'OFFERED'}
           ];
         }
-      }
+      };
       return Observable.of(response);
     },
 
@@ -48,7 +48,7 @@ describe('ApplicationService', () => {
             }
           }
         }
-      }
+      };
       return Observable.of(response);
     },
 
@@ -79,7 +79,7 @@ describe('ApplicationService', () => {
     getCurrent(periods: CommentPeriod[]): CommentPeriod {
       return (periods.length > 0) ? periods[0] : null;
     },
-    
+
     getStatusCode(commentPeriod: CommentPeriod): string {
       return 'OP';
     },
@@ -155,7 +155,7 @@ describe('ApplicationService', () => {
         json() {
           return existingApplicationsData;
         }
-      }
+      };
 
       spyOn(apiService, 'getApplications')
         .and.returnValue(Observable.of(response));
@@ -172,7 +172,7 @@ describe('ApplicationService', () => {
 
     describe('with region filters', () => {
       xit('calls the api.getApplications method with the region filters', () => {
-        service.getAll(1, 100, {})
+        service.getAll(1, 100, {});
       });
     });
   });
@@ -194,7 +194,7 @@ describe('ApplicationService', () => {
         json() {
           return [freshApplicationData];
         }
-      }
+      };
 
       spyOn(apiService, 'getApplication')
         .and.returnValue(Observable.of(response));
@@ -244,21 +244,21 @@ describe('ApplicationService', () => {
             expect(application.appStatus).toBe('Application Under Review');
           });
         });
-  
+
         it('clFile property is padded to be seven digits', () => {
           freshApplicationData.cl_file = 7777;
           service.getById('AAAA').subscribe( application => {
             expect(application.clFile).toBe('0007777');
           });
         });
-  
+
         it('clFile property is null if there is no cl_file property', () => {
           freshApplicationData.cl_file = null;
           service.getById('AAAA').subscribe( application => {
             expect(application.clFile).toBeUndefined();
           });
         });
-  
+
         it('sets the region property', () => {
           freshApplicationData.businessUnit = 'ZOO Keeper';
           service.getById('AAAA').subscribe( application => {

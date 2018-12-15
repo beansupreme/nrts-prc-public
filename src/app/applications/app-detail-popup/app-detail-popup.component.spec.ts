@@ -24,7 +24,7 @@ describe('AppDetailPopupComponent', () => {
     isDisallowed() { return false; },
     isSuspended() { return false; },
     isUnknown() { return false; },
-    isCancelled() { return false }
+    isCancelled() { return false; }
   };
 
   const stubCommentPeriodService = {
