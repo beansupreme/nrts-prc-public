@@ -556,5 +556,30 @@ describe('CommentService', () => {
         });
       }));
     });
+
+    describe('when an exception is thrown', () => {
+      it('ApiService.handleError is called and the error is re-thrown', async(() => {
+        apiSpy.addComment.and.returnValue(
+          Observable.of({
+            text: () => {
+              throw Error('someError');
+            }
+          })
+        );
+        apiSpy.handleError.and.callFake(error => {
+          expect(error).toEqual(Error('someError'));
+          return Observable.throw(Error('someRethrownError'));
+        });
+
+        service.add(new Comment({ _id: '4' })).subscribe(
+          () => {
+            fail('An error was expected.');
+          },
+          err => {
+            expect(err).toEqual(Error('someRethrownError'));
+          }
+        );
+      }));
+    });
   });
 });
